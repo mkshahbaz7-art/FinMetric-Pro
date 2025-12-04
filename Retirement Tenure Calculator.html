@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SWP Retirement Calculator</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="nav-include"></div>
+<script src="common.js"></script>
+
+<div class="container">
+<h1>Advance SWP Retirement Calculator – How Long Will The Corpus Last?</h1>
+<div class="calculator-container">
+
+<div class="section">
+  <label>Corpus Amount (₹)</label>
+  <input type="number" id="corpus" placeholder="e.g. 50,00,000" required>
+</div>
+
+<div class="section">
+  <label>Enter retirement period</label>
+  <div class="inline-btns">
+    <button type="button" onclick="showAge()">Use Age</button>
+    <button type="button" onclick="showTenure()">Use Tenure (years)</button>
+  </div>
+</div>
+
+<div id="ageSection" class="section hidden">
+  <label>Start Age</label>
+  <input type="number" id="startAge" min="20" max="100">
+  <label>Stop Age (or expected lifespan)</label>
+  <input type="number" id="endAge" min="50" max="120">
+</div>
+
+<div id="tenureSection" class="section hidden">
+  <label>Tenure (in years)</label>
+  <input type="number" id="tenure" step="0.1" placeholder="e.g. 30">
+</div>
+
+<div class="section">
+  <label>Expected Annual Return (Yield) %</label>
+  <input type="number" id="yield" step="0.1" value="8" placeholder="e.g. 8">
+  
+  <label>First Year Monthly Expense (₹)</label>
+  <input type="number" id="iniExpense" placeholder="e.g. 50,000">
+  
+  <label>Expected Inflation % per year</label>
+  <input type="number" id="inflation" step="0.1" value="6" placeholder="e.g. 6">
+</div>
+
+<div class="section">
+  <label>Do you expect regular monthly income (pension, rental, etc.)?</label>
+  <div class="inline-btns">
+    <button type="button" onclick="showSection('monthlySection')">Yes</button>
+    <button type="button" onclick="hideSection('monthlySection')">No</button>
+  </div>
+</div>
+<div id="monthlySection" class="section hidden">
+  <label>Monthly Income (₹)</label>
+  <input type="number" id="monthlyIncome" placeholder="e.g. 25,000">
+  <label>Does it increase every year? (Yes/No)</label>
+  <input type="text" id="monthlyIncOpt" maxlength="3" placeholder="Yes or No">
+  <div id="monthlyIncRate" class="hidden">
+    <label>Annual increase %</label>
+    <input type="number" id="monthlyIncPercent" step="0.1" placeholder="e.g. 5">
+  </div>
+</div>
+
+<div class="section">
+  <label>Do you expect regular yearly income (annuity, dividend, etc.)?</label>
+  <div class="inline-btns">
+    <button type="button" onclick="showSection('yearlySection')">Yes</button>
+    <button type="button" onclick="hideSection('yearlySection')">No</button>
+    </div>
+</div>
+<div id="yearlySection" class="section hidden">
+  <label>Yearly Income (₹)</label>
+  <input type="number" id="yearlyIncome" placeholder="e.g. 2,00,000">
+  <label>Does it increase every year? (Yes/No)</label>
+  <input type="text" id="yearlyIncOpt" maxlength="3" placeholder="Yes or No">
+  <div id="yearlyIncRate" class="hidden">
+    <label>Annual increase %</label>
+    <input type="number" id="yearlyIncPercent" step="0.1" placeholder="e.g. 5">
+  </div>
+</div>
+
+<div class="section">
+  <label>Do you expect big one-time expenses (marriage, house, medical, etc.)? (Max 5)</label>
+  <div class="inline-btns">
+    <button type="button" onclick="enableWithdrawals=true; addWithdrawal()">Yes</button>
+    <button type="button" onclick="enableWithdrawals=false; document.getElementById('withdrawalsList').innerHTML=''">No</button>
+  </div>
+</div>
+<div id="withdrawalsList"></div>
+<button id="addWithdrawalBtn" onclick="addWithdrawal()" class="hidden">+ Add Another Big Expense</button>
+
+<div class="section">
+  <label>Do you expect irregular inflows (inheritance, property sale, bonus)? (Max 10)</label>
+  <div class="inline-btns">
+    <button type="button" onclick="enableIrregular=true; addIrregular()">Yes</button>
+    <button type="button" onclick="enableIrregular=false; document.getElementById('irregularList').innerHTML=''">No</button>
+  </div>
+</div>
+<div id="irregularList"></div>
+<button id="addIrregularBtn" onclick="addIrregular()">+ Add Another Inflow</button>
+
+<div class="section calculate-btn-section">
+    <button onclick="calculateSWP()">Calculate How Long Corpus Lasts</button>
+</div>
+
+<div id="result" class="result hidden"></div>
+
+</div>
+</div>
+
+<script>
+let tenure = 0, startAge = 0;
+let withdrawals = [], withdrawalYears = [];
+let irregulars = [], irregularYears = [];
+let enableWithdrawals = false, enableIrregular = false;
+
+function showAge() { showSection('ageSection'); hideSection('tenureSection'); }
+function showTenure() { showSection('tenureSection'); hideSection('ageSection'); }
+function showSection(id) { document.getElementById(id).classList.remove('hidden'); }
+function hideSection(id) { document.getElementById(id).classList.add('hidden'); }
+
+// Auto calculate tenure from age
+document.getElementById('endAge')?.addEventListener('input', updateTenureFromAge);
+document.getElementById('startAge')?.addEventListener('input', updateTenureFromAge);
+function updateTenureFromAge() {
+  const s = parseFloat(document.getElementById('startAge').value) || 0;
+  const e = parseFloat(document.getElementById('endAge').value) || 0;
+  if (e > s) tenure = e - s;
+}
+
+// Monthly increase toggle
+document.getElementById('monthlyIncOpt')?.addEventListener('input', function() {
+  document.getElementById('monthlyIncRate').classList.toggle('hidden', this.value.toLowerCase() !== 'yes');
+});
+document.getElementById('yearlyIncOpt')?.addEventListener('input', function() {
+  document.getElementById('yearlyIncRate').classList.toggle('hidden', this.value.toLowerCase() !== 'yes');
+});
+
+// Big withdrawals
+function addWithdrawal() {
+  if (withdrawals.length >= 5) return alert("Max 5 big expenses allowed");
+  const i = withdrawals.length;
+  const div = document.createElement('div');
+  div.className = 'list-item';
+  div.innerHTML = `
+    <label>Big Expense ${i+1} – After how many years?</label>
+    <input type="number" step="0.1" placeholder="e.g. 5" id="wdYear${i}">
+    <label>Amount (₹)</label>
+    <input type="number" placeholder="e.g. 15,00,000" id="wdAmt${i}">
+  `;
+  document.getElementById('withdrawalsList').appendChild(div);
+  withdrawals.push(0); withdrawalYears.push(0);
+  document.getElementById('addWithdrawalBtn').classList.remove('hidden');
+  if (withdrawals.length >= 5) document.getElementById('addWithdrawalBtn').classList.add('hidden');
+  enableWithdrawals = true;
+}
+
+// Irregular inflows
+function addIrregular() {
+  if (irregulars.length >= 10) return alert("Max 10 irregular inflows allowed");
+  const i = irregulars.length;
+  const div = document.createElement('div');
+  div.className = 'list-item';
+  div.innerHTML = `
+    <label>Irregular Inflow ${i+1} – Amount (₹)</label>
+    <input type="number" placeholder="e.g. 20,00,000" id="irrAmt${i}">
+    <label>In which year (from start)?</label>
+    <input type="number" step="0.1" placeholder="e.g. 8.5" id="irrYear${i}">
+  `;
+  document.getElementById('irregularList').appendChild(div);
+  irregulars.push(0); irregularYears.push(0);
+  enableIrregular = true;
+}
+
+// Main calculation – same logic as your original C-style code
+function calculateSWP() {
+  const corpus = parseFloat(document.getElementById('corpus').value) || 0;
+  if (corpus <= 0) return alert("Please enter a valid corpus");
+
+  // Tenure
+  if (document.getElementById('tenureSection').classList.contains('hidden')) {
+    const s = parseFloat(document.getElementById('startAge').value) || 0;
+    const e = parseFloat(document.getElementById('endAge').value) || 0;
+    tenure = e > s ? e - s : 100;
+    startAge = s;
+  } else {
+    tenure = parseFloat(document.getElementById('tenure').value) || 30;
+  }
+
+  const yieldRate = (parseFloat(document.getElementById('yield').value) || 0) / 100;
+  const iniExpense = parseFloat(document.getElementById('iniExpense').value) || 0;
+  const inflation = (parseFloat(document.getElementById('inflation').value) || 0) / 100;
+
+  // Read all incomes
+  let monthlyIncome = parseFloat(document.getElementById('monthlyIncome')?.value) || 0;
+  let monthlyIncPercent = document.getElementById('monthlyIncOpt')?.value.toLowerCase() === 'yes' ?
+    (parseFloat(document.getElementById('monthlyIncPercent')?.value) || 0) / 100 : 0;
+
+  let yearlyIncome = parseFloat(document.getElementById('yearlyIncome')?.value) || 0;
+  let yearlyIncPercent = document.getElementById('yearlyIncOpt')?.value.toLowerCase() === 'yes' ?
+    (parseFloat(document.getElementById('yearlyIncPercent')?.value) || 0) / 100 : 0;
+
+  // Read withdrawals & irregulars
+  for (let i = 0; i < 5; i++) {
+    withdrawalYears[i] = parseFloat(document.getElementById(`wdYear${i}`)?.value) || 999;
+    withdrawals[i] = parseFloat(document.getElementById(`wdAmt${i}`)?.value) || 0;
+  }
+  for (let i = 0; i < 10; i++) {
+    irregularYears[i] = parseFloat(document.getElementById(`irrYear${i}`)?.value) || 999;
+    irregulars[i] = parseFloat(document.getElementById(`irrAmt${i}`)?.value) || 0;
+  }
+
+  // Simulation
+  let current = corpus;
+  let expense = iniExpense * 12;
+  let year = 1;
+  let wdIdx = 0, irrIdx = 0;
+
+  while (current > 0 && year <= tenure + 50) {  // safety limit
+    // Add regular incomes
+    current += monthlyIncome * 12 + yearlyIncome;
+
+    // Irregular inflows
+    while (irrIdx < irregulars.length && Math.abs(irregularYears[irrIdx] - year) < 0.1) {
+      current += irregulars[irrIdx];
+      irrIdx++;
+    }
+
+    // Big withdrawals
+    while (wdIdx < withdrawals.length && Math.abs(withdrawalYears[wdIdx] - year) < 0.1) {
+      if (current >= withdrawals[wdIdx]) {
+        current -= withdrawals[wdIdx];
+      } else {
+        alert(`Warning: Not enough balance in year ${year} for withdrawal of ₹${withdrawals[wdIdx].toLocaleString('en-IN')}`);
+      }
+      wdIdx++;
+    }
+
+    // Deduct annual expense
+    current -= expense;
+
+    if (current <= 0) break;
+
+    // Growth & inflation
+    current *= (1 + yieldRate);
+    expense *= (1 + inflation);
+    monthlyIncome *= (1 + monthlyIncPercent);
+    yearlyIncome *= (1 + yearlyIncPercent);
+
+    year++;
+  }
+
+  const result = document.getElementById('result');
+  result.classList.remove('hidden');
+  if (current > 0 && year > tenure) {
+    result.innerHTML = `<strong>Success!</strong> Your corpus will comfortably last the full ${tenure.toFixed(1)} years.<br>
+                        Remaining balance: <strong>₹${Math.round(current).toLocaleString('en-IN')}</strong>`;
+  } else {
+    const lasts = year - 1;
+    const ageAtDepletion = startAge ? Math.floor(startAge + lasts) : null;
+    result.innerHTML = `<strong>Warning!</strong> Corpus will exhaust in <strong>${lasts} years</strong>${ageAtDepletion ? ` (Age ≈ ${ageAtDepletion})` : ''}.<br>
+                        It falls short by about <strong>${(tenure - lasts).toFixed(1)} years</strong>.`;
+  }
+}
+
+// Mobile menu
+document.querySelector('.hamburger')?.addEventListener('click', () => {
+  document.querySelector('.nav-links').classList.toggle('active');
+});
+</script>
+</body>
+</html>

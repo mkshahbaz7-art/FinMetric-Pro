@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Calculator Hub</title>
+<link rel="stylesheet" href="style.css">
+    </head>
+<body>
+<div id="nav-include"></div>
+
+<script>
+    fetch("navbar.html")
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById("nav-include").innerHTML = data;
+    });
+</script>
+
+    <h2>Ways to Reach Us</h2>
+    <p>
+        Email: <a href="mailto:mkshahbaz7@gmail.com">mkshahbaz7@gmail.com</a><br><br>
+        GitHub: <a href="https://github.com/mkshahbaz7-art" target="_blank">github.com/mkshahbaz7-art</a>
+    </p>
+
+    <script>
+        const hamburger = document.querySelector(".hamburger");
+        const navLinks = document.querySelector(".nav-links");
+
+        hamburger.addEventListener("click", () => {
+            navLinks.classList.toggle("active");
+        });
+    </script>
+</body>
+</html>

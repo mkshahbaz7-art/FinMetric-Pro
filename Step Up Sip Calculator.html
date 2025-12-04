@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SIP Step-Up Calculator</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="nav-include"></div>
+<script src="common.js"></script>
+<div class="box">
+  <h1>SIP Step-Up Calculator</h1>
+<div class="calculator-container">
+  <div class="label">Expected Annual Return (%)</div>
+  <input type="number" id="yield" step="0.01" value="12">
+
+  <div class="label">Initial Monthly SIP (₹)</div>
+  <input type="number" id="ini_sip" value="10000">
+
+  <div class="label">Annual Step-Up (%)</div>
+  <input type="number" id="stepUp" step="0.01" value="10">
+
+  <div class="label">Investment Period (Years)</div>
+  <input type="number" id="years" step="0.01" value="15">
+
+  <button onclick="calculate()">Calculate Maturity Value</button>
+
+  <div id="result"></div>
+</div>
+</div>
+
+<script>
+function calculate() {
+  const yieldRate = parseFloat(document.getElementById('yield').value) || 0;
+  const ini_sip = parseFloat(document.getElementById('ini_sip').value) || 0;
+  const stepUp = parseFloat(document.getElementById('stepUp').value) || 0;
+  const years = parseFloat(document.getElementById('years').value) || 0;
+
+  if (ini_sip <= 0 || years <= 0) {
+    document.getElementById('result').innerHTML = "Please enter valid values";
+    return;
+  }
+
+  const y = Math.floor(years);
+  const part_year = years - y;
+  const months = Math.floor(part_year * 12 + 1e-9);
+
+  let sip = ini_sip;
+  let maturity = 0;
+  const r = Math.pow(1 + yieldRate/100, 1/12) - 1;
+  const rn = Math.pow(1 + r, 12);
+
+  // Calculation for full years
+  for (let i = 1; i <= y; i++) {
+    let end_year = (r < 1e-10) ? sip * 12 : sip * (rn - 1) / r * (1 + r);
+    
+    let remaining_months = (years - i) * 12;
+    let year_maturity = end_year * Math.pow(1 + r, remaining_months);
+    maturity += year_maturity;
+    
+    
+    sip = sip * (1 + stepUp / 100);
+  }
+
+  if (months > 0) {
+    const rm = Math.pow(1 + r, months);
+    
+    let end_partial = (r < 1e-10) ? sip * months : sip * (rm - 1) / r;
+    
+    maturity += end_partial * (1 + r);
+    maturity += end_partial * (1 + r); 
+  }
+
+  const formatted = maturity.toLocaleString('en-IN', {maximumFractionDigits: 0});
+  document.getElementById('result').innerHTML = `Maturity Amount: <strong>₹${formatted}</strong>`;
+}
+
+document.querySelector('.hamburger')?.addEventListener('click', () => {
+        document.querySelector('.nav-links').classList.toggle('active');
+    });
+</script>
+
+</body>
+</html>

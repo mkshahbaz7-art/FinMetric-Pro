@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixed Deposit Maturity Calculator (Quarterly Compounding)</title>
+<link rel="stylesheet" href="style.css">
+    </head>
+<body>
+<div id="nav-include"></div>
+
+<script>
+    fetch("navbar.html")
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById("nav-include").innerHTML = data;
+    });
+</script>
+
+    <h1>Fixed Deposit Maturity Calculator</h1>
+<div class="calculator-container">
+    <div class="calculator">
+        <label for="rate">Annual Interest Rate (%)</label>
+        <input type="number" id="rate" step="0.01" placeholder="e.g. 7.5" required>
+
+        <label for="principal">Principal Amount (₹)</label>
+        <input type="number" id="principal" step="0.01" placeholder="e.g. 100000" required>
+
+        <label for="years">Number of Years</label>
+        <input type="number" id="years" step="0.01" placeholder="e.g. 5" required>
+
+        <button onclick="calculateMaturity()">Calculate Maturity Amount</button>
+
+        <div id="result"></div>
+        <div class="note">Compounding: Quarterly (4 times per year)</div>
+    </div>
+</div>
+
+    <script>
+        function calculateMaturity() {
+            // Get values from inputs
+            const rate = parseFloat(document.getElementById('rate').value);
+            const principal = parseFloat(document.getElementById('principal').value);
+            const years = parseFloat(document.getElementById('years').value);
+
+            // Validation
+            if (isNaN(rate) || isNaN(principal) || isNaN(years) || 
+                rate < 0 || principal <= 0 || years <= 0) {
+                document.getElementById('result').innerHTML = 
+                    '<span>Please enter valid positive values!</span>';
+                return;
+            }
+
+            // Exact same formula as your C code
+            const R = rate / 100.0;             // convert % to decimal
+            const n = 4;                        // compounding periods per year (quarterly)
+            const t = years;
+
+            // A = P * (1 + r/n)^(n*t)    → using Math.pow (same as powf in C)
+            const maturity = principal * Math.pow(1 + R / n, n * t);
+
+            // Display result with 2 decimal places (like real banks)
+            document.getElementById('result').innerHTML = 
+                `Total FD Maturity: ₹${maturity.toFixed(2)}`;
+        }
+
+        // Allow pressing Enter to calculate
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculateMaturity();
+            }
+        });
+document.querySelector('.hamburger').addEventListener('click', () => {
+        document.querySelector('.nav-links').classList.toggle('active');
+    });
+    </script>
+
+</body>
+</html>

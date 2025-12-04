@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recurring Deposit (RD) Maturity Calculator</title>
+<link rel="stylesheet" href="style.css">
+    </head>
+<body>
+<div id="nav-include"></div>
+<script src="common.js"></script>
+
+    <div class="container">
+        <h1>RD Maturity Calculator</h1>
+<div class="calculator-container">
+    <p class="subtitle">Recurring Deposit with Monthly Compounding</p>
+
+    <label for="rate">Annual Interest Rate (%)</label>
+    <input type="number" id="rate" step="0.01" placeholder="e.g. 7.5" required>
+
+    <label for="deposit">Monthly Deposit Amount (₹)</label>
+    <input type="number" id="deposit" step="100" placeholder="e.g. 5000" required>
+
+    <label for="years">Tenure (Years)</label>
+    <input type="number" id="years" step="0.5" placeholder="e.g. 5" required>
+
+    <button onclick="calculateRD()">Calculate Maturity</button>
+
+    <div class="result" id="result">Total Maturity: ₹0</div>
+    <div class="details" id="details"></div>
+
+    <div class="note">
+        Uses exact bank RD formula with monthly compounding<br>
+        Same logic as professional banking software
+    </div>
+</div>
+    </div>
+
+    <script>
+        function calculateRD() {
+            const rate = parseFloat(document.getElementById('rate').value);
+            const deposit = parseFloat(document.getElementById('deposit').value);
+            const years = parseFloat(document.getElementById('years').value);
+
+            // Validation
+            if (isNaN(rate) || isNaN(deposit) || isNaN(years) || 
+                rate <= 0 || deposit <= 0 || years <= 0) {
+                document.getElementById('result').innerHTML = 
+                    "<span>Please enter valid positive values!</span>";
+                document.getElementById('details').innerHTML = "";
+                return;
+            }
+
+            // Exact same logic as your C code
+            const r = Math.pow(1.0 + rate / 100.0, 1.0 / 12.0) - 1.0;
+            const total_months = years * 12.0;
+            const rn = Math.pow(r + 1.0, total_months);
+            
+            // RD Maturity formula (with interest on last deposit)
+            const maturity = deposit * (rn - 1.0) / r * (1.0 + r);
+
+            const totalInvested = deposit * total_months;
+            const interestEarned = maturity - totalInvested;
+
+            // Display results
+            document.getElementById('result').innerHTML = 
+                `Total Maturity Amount: ₹${maturity.toFixed(2)}`;
+
+            document.getElementById('details').innerHTML = 
+                `<strong>Total Deposited:</strong> ₹${totalInvested.toFixed(2)}<br>
+                <strong>Interest Earned:</strong> <span>₹${interestEarned.toFixed(2)}</span><br>
+                <small>Effective Growth: +${((interestEarned/totalInvested)*100).toFixed(2)}%</small>`;
+        }
+
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') calculateRD();
+        });
+document.querySelector('.hamburger').addEventListener('click', () => {
+        document.querySelector('.nav-links').classList.toggle('active');
+    });
+    </script>
+</body>
+</html>

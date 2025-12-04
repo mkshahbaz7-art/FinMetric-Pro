@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - FinMetric Pro</title>
+<link rel="stylesheet" href="style.css">
+    </head>
+<body>
+<div id="nav-include"></div>
+
+<script>
+    fetch("navbar.html")
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById("nav-include").innerHTML = data;
+    });
+</script>
+
+    <div class="hero">
+        <h1>About FinMetric Pro</h1>
+        <p class="hero-subtext">
+            Simple, beautiful, and customizable online calculators.
+        </p>
+    </div>
+
+    <div class="calculator-container">
+        <h2>Our Mission</h2>
+        <p>
+            We created FinMetric Pro because we got tired of ugly, ad-filled calculator websites 
+            that are slow and hard to use on mobile. Our goal is to provide clean, fast, and 
+            beautiful tools that just work — no distractions, no tracking, no nonsense.
+        </p>
+
+
+        <h2 class="section-title">Open & Free</h2>
+        <p>
+            All of our calculators are completely free to use. The FinMetric Pro calculators were technically conceived, coded, and build by Mohammad Shahbaz Khan, a coding and finance enthusiast. All our codes are open-source, and we publish them
+            (you can find the code on GitHub when we publish it).        
+</p>
+
+        <h2 class="section-title">Get In Touch</h2>
+        <p>
+            Have a suggestion for a new calculator? Found a bug? Just want to say hi?<br>
+            Head over to our <a href="contact.html" class="contact-link">Contact page</a> — we read every message.
+        </p>
+    </div>
+
+    <footer>
+        © 2025 FinMetric Pro. Made with ❤️ for people who want to stay one ahead in Finance
+    </footer>
+
+    <script>
+        const hamburger = document.querySelector(".hamburger");
+        const navLinks = document.querySelector(".nav-links");
+
+        hamburger.addEventListener("click", () => {
+            navLinks.classList.toggle("active");
+        });
+    </script>
+<script src="common.js"></script>
+</body>
+</html>

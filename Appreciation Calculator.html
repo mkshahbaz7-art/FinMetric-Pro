@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Appreciation Calculator</title>
+<link rel="stylesheet" href="style.css">
+    </head>
+<body>
+<div id="nav-include"></div>
+
+<script src="common.js"></script>
+    <div class="container">
+        <h1>Investment Appreciation Calculator</h1>
+<div class="calculator-container">
+    <p>With Quarterly Compounding Growth</p>
+
+    <label for="rate">Expected Annual Return Rate (%)</label>
+    <input type="number" id="rate" step="0.01" placeholder="e.g. 12.5" required>
+
+    <label for="principal">Initial Investment Amount (₹)</label>
+    <input type="number" id="principal" step="0.01" placeholder="e.g. 500000" required>
+
+    <label for="years">Investment Period (Years)</label>
+    <input type="number" id="years" step="0.01" placeholder="e.g. 10" required>
+
+    <button onclick="calculateMaturity()">Calculate Future Value</button>
+
+    <div class="result" id="result">Future Value: ₹0.00</div>
+
+</div>
+    </div>
+
+    <script>
+        function calculateMaturity() {
+            const rate = parseFloat(document.getElementById('rate').value);
+            const principal = parseFloat(document.getElementById('principal').value);
+            const years = parseFloat(document.getElementById('years').value);
+
+            if (isNaN(rate) || isNaN(principal) || isNaN(years) || 
+                rate < 0 || principal <= 0 || years <= 0) {
+                document.getElementById('result').innerHTML = 
+                    "<span>Please enter valid positive values!</span>";
+                return;
+            }
+
+            const R = rate / 100.0;
+            const n = 4;  // quarterly compounding
+            const t = years;
+
+            const maturity = principal * Math.pow(1 + R / n, n * t);
+            const profit = maturity - principal;
+
+            document.getElementById('result').innerHTML = 
+                `Future Value: ₹${maturity.toFixed(2)}<br>
+                <small>Total Growth: ₹${profit.toFixed(2)} (+${((profit/principal)*100).toFixed(2)}%)</small>`;
+        }
+
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculateMaturity();
+            }
+        });
+document.querySelector('.hamburger').addEventListener('click', () => {
+        document.querySelector('.nav-links').classList.toggle('active');
+    });
+    </script>
+</body>
+</html>

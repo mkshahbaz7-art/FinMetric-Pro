@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advance EMI Calculator</title>
+<link rel="stylesheet" href="style.css">
+    </head>
+<body>
+<div id="nav-include"></div>
+<script src="common.js"></script>
+    <div class="container">
+        <h1>EMI Calculator</h1>
+<div class="calculator-container">
+
+        <label>Loan Amount (₹)</label>
+        <input type="number" id="loan" placeholder="e.g. 5000000" required>
+
+        <label>Rate of Interest (% per year)</label>
+        <input type="number" step="0.01" id="rate" placeholder="e.g. 8.5" required>
+
+        <label>Tenure (in years)</label>
+        <input type="number" id="tenure" placeholder="e.g. 20" required>
+
+        <button type="button" onclick="calculate()">Calculate</button>
+        <button type="button" class="toggle-btn" id="toggleBtn">+ Add Prepayments (Optional)</button>
+	
+
+<div id="prepaymentSection" class="hidden">
+    <label>Monthly Prepayment (₹)</label>
+    <input type="number" id="monthly_pp" value="0">
+    
+        <label>Start Monthly Prepayment after (years)</label>
+    <input type="number" step="0.1" id="monthly_pp_time" value="0"> 
+        <label>Yearly Prepayment (₹)</label>
+    <input type="number" id="yearly_pp" value="0">
+
+        <label>Start Yearly Prepayment after (years)</label>
+    <input type="number" step="0.1" id="yearly_pp_time" value="0"> 
+        <label>One-time Prepayment (₹)</label>
+    <input type="number" id="onetime_pp" value="0">
+
+    <label>After how many years (one-time)</label>
+    <input type="number" step="0.1" id="onetime_time" value="0">
+
+    <label>Annual increase in Monthly prepayment (%)</label>
+    <input type="number" step="0.1" id="monthly_pp_inc" value="0">
+
+    <label>Annual increase in Yearly prepayment (%)</label>
+    <input type="number" step="0.1" id="yearly_pp_inc" value="0">
+
+    <label>Annual EMI increase (%)</label>
+    <input type="number" step="0.1" id="emi_inc" value="0" placeholder="e.g. 5 for 5% every year">
+</div>
+        <div id="result"></div>
+</div>
+    </div>
+
+    
+<script>
+    document.getElementById('toggleBtn').onclick = function() {
+        const section = document.getElementById('prepaymentSection');
+        const btn = this;
+        if (section.style.display === 'none' || section.style.display === '') {
+            section.style.display = 'block';
+            btn.textContent = '− Hide Prepayments';
+        } else {
+            section.style.display = 'none';
+            btn.textContent = '+ Add Prepayments (Optional)';
+        }
+    };
+
+    function calculate() {
+        const P = parseFloat(document.getElementById('loan').value) || 0;
+        const rate = parseFloat(document.getElementById('rate').value) || 0;
+        const years = parseFloat(document.getElementById('tenure').value) || 0;
+
+        if (P <= 0 || rate <= 0 || years <= 0) {
+            document.getElementById('result').innerHTML = '<span>Please enter valid values</span>'; 
+            return;
+        }
+
+        let monthly_pp = parseFloat(document.getElementById('monthly_pp').value) || 0;
+        let yearly_pp = parseFloat(document.getElementById('yearly_pp').value) || 0;
+        let onetime_pp = parseFloat(document.getElementById('onetime_pp').value) || 0;
+        const onetime_time = parseFloat(document.getElementById('onetime_time').value) || 0;
+        const monthly_pp_inc = parseFloat(document.getElementById('monthly_pp_inc').value) || 0;
+        const yearly_pp_inc = parseFloat(document.getElementById('yearly_pp_inc').value) || 0;
+        const emi_inc = parseFloat(document.getElementById('emi_inc').value) || 0;
+        const monthly_pp_time = parseFloat(document.getElementById('monthly_pp_time').value) || 0;
+        const yearly_pp_time = parseFloat(document.getElementById('yearly_pp_time').value) || 0;
+        
+        const r = rate / 1200;
+        const n = years * 12;
+        let emi = P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+
+        let loan = P;
+        let current_monthly_pp = monthly_pp;
+        let current_yearly_pp = yearly_pp;
+        let onetime_applied = false;
+        
+        const monthly_pp_start_month = Math.round(monthly_pp_time * 12);
+        const yearly_pp_start_month = Math.round(yearly_pp_time * 12);
+        
+
+        let table = `<strong>EMI: ₹${emi.toFixed(2)}</strong><br><br>
+                     <table><tr><th>Month</th><th>Interest</th><th>Outstanding</th></tr>`;
+
+        for (let i = 1; i <= n && loan > 0; i++) {
+            // Your custom interest calculation logic (retained as per your request)
+            const interest = loan * rate / 36500 * 30.4;
+            
+            // Start with the standard loan reduction (EMI)
+            let out_loan = loan + interest - emi;
+
+            if (current_monthly_pp > 0 && i > monthly_pp_start_month) {
+                out_loan -= current_monthly_pp;
+            }
+
+            if (i % 12 === 0 && current_yearly_pp > 0 && i > yearly_pp_start_month) {
+                out_loan -= current_yearly_pp;
+            }
+            
+            if (i % 12 === 0) {
+                current_monthly_pp *= (1 + monthly_pp_inc / 100);
+                current_yearly_pp *= (1 + yearly_pp_inc / 100);
+                emi = emi * (1 + emi_inc/100);    
+            }
+
+            if (!onetime_applied && i === Math.round(onetime_time * 12) && onetime_pp !== 0) {
+                out_loan -= onetime_pp;
+                onetime_applied = true;
+            }
+
+            loan = Math.max(0, out_loan);
+
+            if (i <= 12 || i % 12 === 0 || loan <= 0) {
+                table += `<tr><td>${i}</td><td>₹${interest.toFixed(0)}</td><td>₹${loan.toFixed(0)}</td></tr>`;
+            }
+
+            if (loan <= 0) {
+                table += `<tr><td colspan="3"><strong>Loan paid off in ${i} months!</strong></td></tr>`; 
+                break;
+            }
+        }
+        table += `</table>`;
+        document.getElementById('result').innerHTML = table;
+    }
+
+ document.querySelector('.hamburger').addEventListener('click', () => {
+        document.querySelector('.nav-links').classList.toggle('active');
+    });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinMetric Pro - All Financial Calculators in One Place</title>
+<link rel="stylesheet" href="style.css">
+    </head>
+<body>
+<div id="nav-include"></div>
+
+<script>
+    fetch("navbar.html")
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById("nav-include").innerHTML = data;
+    });
+</script>
+
+    <section class="hero">
+        <h1>FinMetric Pro</h1>
+        <p>Your All-in-One Free Financial Calculator Suite<br>FD • RD • SIP • EMI • SWP • Step-Up • Prepayment • Appreciation & More</p>
+    </section>
+
+    <div class="grid">
+        <div class="card"><h3>FD Calculator</h3><p>Fixed Deposit with quarterly compounding</p><a href="FD calculator.html">Open →</a></div>
+        <div class="card"><h3>RD Calculator</h3><p>Recurring Deposit maturity</p><a href="RD calculator.html">Open →</a></div>
+        <div class="card"><h3>EMI + Prepayments</h3><p>Use the most nuanced EMI calculator</p><a href="Advance EMI & Tenure Calculator.html">Open →</a></div>
+        <div class="card"><h3>SWP + Other payments</h3><p>Calculate corpus based on monthly expense and other factors</p><a href="Retirement Corpus Calculator.html">Open →</a></div>
+    <div class="card"><h3>Calculate How Long The Retirement Corpus Lasts</h3><p>Calculate tenure based on monthly expense and other factors</p><a href="Retirement Tenure Calculator.html">Open →</a></div>
+        <div class="card"><h3>Plan your SIP</h3><p>Calculate SIP needed to fund your Retirement years</p><a href="Retirement Planning Calculator.html">Open →</a></div>
+        <div class="card"><h3>Income Tax Calculator</h3><p>Calculate Income Tax from both Old & New Regime</p><a href="Tax Calculator.html">Open →</a></div>
+        <div class="card"><h3>SIP + Lumpsum Calculator</h3><p>Calculate the corpus based on monthly and lumpsum payments</p><a href="SIP calculator with lump-sum.html">Open →</a></div>
+    <div class="card"><h3>Step-UP SIP Calculator</h3><p> </p><a href="Step Up Sip Calculator.html">Open →</a></div>
+    <div class="card"><h3>Step-UP SIP + Lumpsum</h3><p>Let's you calculate corpus using step-up SIP & Lumpsum</p><a href="Step Up Sip calculator with Lumpsum.html">Open →</a></div>
+        <div class="card"><h3>Dynamic SIP Calculator</h3><p>Let's you enter different amount for every year</p><a href="Dynamic SIP Calculator.html">Open →</a></div>
+        <div class="card"><h3>Investment Growtrh Calculator</h3><p>Asset value growth</p><a href="Appreciation Calculator.html">Open →</a></div>
+    </div>
+
+<footer>
+        <p>© 2025 FinMetric Pro — Made with ♥ for smart investors</p>
+    </footer>
+<script>
+document.querySelector('.hamburger').addEventListener('click', () => {
+        document.querySelector('.nav-links').classList.toggle('active');
+    });
+</script>
+</body>
+</html>

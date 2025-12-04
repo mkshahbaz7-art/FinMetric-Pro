@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Tax Regime Calculator</title>
+<link rel="stylesheet" href="style.css">
+    </head>
+<body>
+<div id="nav-include"></div>
+<script src="common.js"></script>
+
+<div class="container">
+    <h1>New Tax Regime Calculator (FY 2025-26 Onwards)</h1>
+    <div class="calculator-container">
+    <h1>Income Type Selector (FY 2025-26)</h1>
+
+    <div class="option-buttons">
+        <label class="option-btn selected">
+            <input type="radio" name="input_type" value="taxable" checked>
+            Total Taxable Income
+        </label>
+        <label class="option-btn">
+            <input type="radio" name="input_type" value="pay_without">
+            Pay without Employer's Contribution
+        </label>
+        <label class="option-btn">
+            <input type="radio" name="input_type" value="gross">
+            Gross Pay
+        </label>
+    </div>
+
+    <div id="input_taxable" class="input-section">
+        <label>Total Taxable Income (₹)</label>
+        <input type="number" id="income_taxable" placeholder="e.g. 1000000">
+    </div>
+
+    <div id="input_pay_without" class="input-section hidden">
+        <label>Pay without Employer's Contribution (₹)</label>
+        <input type="number" id="income_pay_without" placeholder="e.g. 1200000">
+        <p class="note">₹75,000 Standard Deduction will be applied automatically.</p>
+    </div>
+
+    <div id="input_gross" class="input-section hidden">
+        <label>Gross Pay (before any deductions) (₹)</label>
+        <input type="number" id="income_gross" placeholder="e.g. 1250000">
+        <label>Employer's Contribution to EPF/NPS etc. (₹)</label>
+        <input type="number" id="employer_contrib" value="0" placeholder="e.g. 150000">
+        <p class="note">₹75,000 Standard Deduction will be applied automatically.</p>
+    </div>
+
+
+
+        <button type="button" onclick="calculateTax()">
+            Calculate Tax
+        </button>
+
+        <div id="result" class="result hidden"></div>
+
+  	<div class="option-buttons">
+  		<a href="Old Tax Regime Calculator.html" class="option-btn" style="text-align:center;">
+     		 Old Tax Regime Calculator
+  		</a>
+    	</div>
+</div>
+
+<footer>
+    © 2025 FinMetric Pro. Made with ❤️ for people who want to stay one ahead in Finance
+</footer>
+
+<script>
+    const STD = 75000;
+    const CESS = 0.04;
+
+    const SLABS = [
+        {upto: 400000, rate: 0},
+        {upto: 800000, rate: 0.05},
+        {upto: 1200000, rate: 0.10},
+        {upto: 1600000, rate: 0.15},
+        {upto: 2000000, rate: 0.20},
+        {upto: 2400000, rate: 0.25},
+        {upto: Infinity, rate: 0.30}
+    ];
+    document.addEventListener("DOMContentLoaded", function () {
+    const optionButtons = document.querySelectorAll(".option-btn");
+    const sections = document.querySelectorAll(".input-section");
+
+    optionButtons.forEach(btn => {
+        btn.addEventListener("click", function () {
+            const radio = this.querySelector("input[type='radio']");
+            const value = radio.value;
+            const target = "input_" + value;
+
+            // Hide all sections
+            sections.forEach(sec => sec.classList.add("hidden"));
+
+            // Show the selected section
+            document.getElementById(target).classList.remove("hidden");
+
+            // Update selected button style
+            optionButtons.forEach(b => b.classList.remove("selected"));
+            this.classList.add("selected");
+
+            // Check the radio button
+            radio.checked = true;
+        });
+    });
+});
+    function fmt(n) {
+        return '₹' + Math.round(n).toLocaleString('en-IN');
+    }
+
+    function getTaxableIncome() {
+        const type = document.querySelector('input[name="input_type"]:checked').value;
+        let income = 0;
+
+        if (type === 'taxable') {
+            income = parseFloat(document.getElementById('income_taxable').value) || 0;
+        } else if (type === 'pay_without') {
+            income = (parseFloat(document.getElementById('income_pay_without').value) || 0) - STD;
+        } else if (type === 'gross') {
+            const gross = parseFloat(document.getElementById('income_gross').value) || 0;
+            const emp = parseFloat(document.getElementById('employer_contrib').value) || 0;
+            income = gross + emp - STD;
+        }
+        return Math.max(0, income);
+    }
+
+    function calculateTax() {
+        const taxable = getTaxableIncome();
+        if (taxable <= 0) {
+            showResult('<p>Please enter a valid income amount.</p>');
+            return;
+        }
+
+        let tax = 0;
+        let prev = 0;
+        for (const s of SLABS) {
+            if (taxable <= s.upto) {
+                tax += (taxable - prev) * s.rate;
+                break;
+            }
+            tax += (s.upto - prev) * s.rate;
+            prev = s.upto;
+        }
+
+        let rebate = 0;
+        let marginal = '';
+        if (taxable <= 1200000) {
+            rebate = tax;
+        } else if (taxable - tax <= 1200000) {
+            const oldTax = tax;
+            tax = taxable - 1200000;
+            rebate = oldTax - tax;
+            marginal = ' (Marginal Relief Applied u/s 115BAC(1A))';
+        }
+
+        const afterRebate = tax - rebate;
+        const cess = afterRebate * CESS;
+        const total = afterRebate + cess;
+
+        const stdNote = (taxable !== parseFloat(document.getElementById('income_taxable').value || 0))
+            ? '<p class="std-note">Standard Deduction ₹75,000 applied</p>' : '';
+
+        const html = `
+            <h3 class="result-heading">Tax Calculation - New Regime (FY 2025-26)</h3>
+            ${stdNote}
+            <table>
+                <tr><td>Total Taxable Income</td><td>${fmt(taxable)}</td></tr>
+                <tr><td>Income Tax</td><td>${fmt(tax)}</td></tr>
+                <tr><td class="rebate-row">Rebate u/s 87A${marginal}</td><td class="rebate-row">-${fmt(rebate)}</td></tr>
+                <tr><td>Tax after Rebate</td><td>${fmt(afterRebate)}</td></tr>
+                <tr><td>Cess @ 4%</td><td>${fmt(cess)}</td></tr>
+                <tr class="final-tax-row">
+                    <td>Net Tax Payable</td><td>${fmt(total)}</td>
+                </tr>
+            </table>
+        `;
+        showResult(html);
+    }
+
+    function showResult(html) {
+        const el = document.getElementById('result');
+        el.innerHTML = html;
+        el.classList.remove('hidden');
+    }
+
+    document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+            this.querySelector('input').checked = true;
+
+            document.querySelectorAll('.input-section').forEach(sec => sec.classList.remove('active'));
+            const target = this.querySelector('input').value === 'taxable' ? 'input_taxable' :
+                              this.querySelector('input').value === 'pay_without' ? 'input_pay_without' : 'input_gross';
+            document.getElementById(target).classList.add('active');
+        });
+    });
+
+    document.querySelector('.hamburger')?.addEventListener('click', () => {
+        document.querySelector('.nav-links').classList.toggle('active');
+    });
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const radios = document.querySelectorAll("input[name='input_type']");
+    const sections = document.querySelectorAll(".input-section");
+
+    radios.forEach(radio => {
+        radio.addEventListener("change", function() {
+            const target = "input_" + this.value;
+
+            // Hide all sections
+            sections.forEach(sec => sec.classList.add("hidden"));
+
+            // Show selected section
+            document.getElementById(target).classList.remove("hidden");
+        });
+    });
+});
+</script>
+
+</body>
+</html>

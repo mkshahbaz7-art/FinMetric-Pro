@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Retirement Corpus Calculator</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="nav-include"></div>
+<script src="common.js"></script>
+<div class="container">
+<h1>How Much Corpus Do I Need for Retirement?</h1>
+<p class="sub-heading">Reverse SWP Calculator – Tells you the exact amount you need today</p>
+
+<div class="calculator-container">
+
+<div class="section">
+  <label>First Year Monthly Expense (₹)</label>
+  <input type="number" id="iniExpense" placeholder="e.g. 60,000" required>
+  
+  <label>Expected Inflation % per year</label>
+  <input type="number" id="inflation" step="0.1" value="6" placeholder="e.g. 6">
+  
+  <label>Expected Annual Return on Investments %</label>
+  <input type="number" id="yield" step="0.1" value="8" placeholder="e.g. 8">
+</div>
+
+<div class="section">
+  <label>How long should the corpus last?</label>
+  <div class="inline-btns">
+    <button type="button" onclick="showSection('ageSection'); hideSection('tenureSection')">Use Age</button>
+    <button type="button" onclick="showSection('tenureSection'); hideSection('ageSection')">Use Years</button>
+  </div>
+</div>
+
+<div id="ageSection" class="section hidden">
+  <label>Current Age</label>
+  <input type="number" id="currentAge" min="20" max="100" placeholder="e.g. 35">
+  <label>Expected Lifespan (or till age)</label>
+  <input type="number" id="lifespan" min="60" max="120" placeholder="e.g. 90">
+</div>
+
+<div id="tenureSection" class="section hidden">
+  <label>Number of Years to Plan For</label>
+  <input type="number" id="tenure" step="0.1" placeholder="e.g. 35">
+</div>
+
+<div class="section">
+  <label>Do you expect regular monthly income (pension, rent, etc.)?</label>
+  <div class="inline-btns">
+    <button type="button" onclick="showSection('monthlySection')">Yes</button>
+    <button type="button" onclick="hideSection('monthlySection')">No</button>
+  </div>
+</div>
+<div id="monthlySection" class="section hidden">
+  <label>Monthly Income (₹)</label>
+  <input type="number" id="monthlyIncome" placeholder="e.g. 25,000">
+  <label>Does it increase annually? (Yes/No)</label>
+  <input type="text" id="monthlyIncOpt" maxlength="3" placeholder="Yes">
+  <div id="monthlyIncRate" class="hidden">
+    <label>Annual Increase %</label>
+    <input type="number" id="monthlyIncPercent" step="0.1" placeholder="e.g. 5">
+  </div>
+</div>
+
+<div class="section">
+  <label>Do you expect regular yearly income (dividend, annuity)?</label>
+  <div class="inline-btns">
+    <button type="button" onclick="showSection('yearlySection')">Yes</button>
+    <button type="button" onclick="hideSection('yearlySection')">No</button>
+  </div>
+</div>
+<div id="yearlySection" class="section hidden">
+  <label>Yearly Income (₹)</label>
+  <input type="number" id="yearlyIncome" placeholder="e.g. 3,00,000">
+  <label>Does it increase annually? (Yes/No)</label>
+  <input type="text" id="yearlyIncOpt" maxlength="3" placeholder="Yes">
+  <div id="yearlyIncRate" class="hidden">
+    <label>Annual Increase %</label>
+    <input type="number" id="yearlyIncPercent" step="0.1" placeholder="e.g. 5">
+  </div>
+</div>
+
+<div class="section">
+  <label>Any big future expenses (house, marriage, medical)? (Max 5)</label>
+  <div class="inline-btns">
+    <button type="button" onclick="enableWithdrawals=true; addWithdrawal()">Yes</button>
+    <button type="button" onclick="enableWithdrawals=false; document.getElementById('withdrawalsList').innerHTML=''">No</button>
+  </div>
+</div>
+<div id="withdrawalsList"></div>
+<button id="addWithdrawalBtn" onclick="addWithdrawal()" class="hidden">+ Add Another Big Expense</button>
+
+<div class="section">
+  <label>Any expected irregular inflows (inheritance, property sale)? (Max 10)</label>
+  <div class="inline-btns">
+    <button type="button" onclick="enableIrregular=true; addIrregular()">Yes</button>
+    <button type="button" onclick="enableIrregular=false; document.getElementById('irregularList').innerHTML=''">No</button>
+  </div>
+</div>
+<div id="irregularList"></div>
+<button id="addIrregularBtn" onclick="addIrregular()">+ Add Another Inflow</button>
+
+<div class="section calculate-btn-section">
+    <button onclick="calculateRequiredCorpus()">
+    Calculate Required Corpus
+  </button>
+</div>
+
+<div id="result" class="result hidden"></div>
+</div>
+</div>
+
+<script>
+let tenure = 0;
+let withdrawals = [], withdrawalYears = [];
+let irregulars = [], irregularYears = [];
+let enableWithdrawals = false, enableIrregular = false;
+
+function showSection(id) { document.getElementById(id).classList.remove('hidden'); }
+function hideSection(id) { document.getElementById(id).classList.add('hidden'); }
+
+// Auto-toggle increase rate
+document.getElementById('monthlyIncOpt')?.addEventListener('input', toggleRate);
+document.getElementById('yearlyIncOpt')?.addEventListener('input', toggleRate);
+function toggleRate() {
+  const id = this.id === 'monthlyIncOpt' ? 'monthlyIncRate' : 'yearlyIncRate';
+  const show = this.value.toLowerCase().includes('y');
+  document.getElementById(id).classList.toggle('hidden', !show);
+}
+
+// Big withdrawals
+function addWithdrawal() {
+  if (withdrawals.length >= 5) return alert("Max 5 big expenses");
+  const i = withdrawals.length;
+  const div = document.createElement('div');
+  div.className = 'list-item';
+  div.innerHTML = `
+    <label>Expense ${i+1}: Amount (₹)</label>
+    <input type="number" id="wdAmt${i}" placeholder="e.g. 20,00,000">
+    <label>In which year from now?</label>
+    <input type="number" step="0.1" id="wdYear${i}" placeholder="e.g. 10">
+  `;
+  document.getElementById('withdrawalsList').appendChild(div);
+  withdrawals.push(0); withdrawalYears.push(0);
+  document.getElementById('addWithdrawalBtn').classList.remove('hidden');
+  if (withdrawals.length >= 5) document.getElementById('addWithdrawalBtn').classList.add('hidden');
+}
+
+// Irregular inflows
+function addIrregular() {
+  if (irregulars.length >= 10) return alert("Max 10 inflows");
+  const i = irregulars.length;
+  const div = document.createElement('div');
+  div.className = 'list-item';
+  div.innerHTML = `
+    <label>Inflow ${i+1}: Amount (₹)</label>
+    <input type="number" id="irrAmt${i}" placeholder="e.g. 50,00,000">
+    <label>In which year?</label>
+    <input type="number" step="0.1" id="irrYear${i}" placeholder="e.g. 15">
+  `;
+  document.getElementById('irregularList').appendChild(div);
+  irregulars.push(0); irregularYears.push(0);
+}
+
+// MAIN REVERSE CALCULATION
+function calculateRequiredCorpus() {
+  const iniExpense = parseFloat(document.getElementById('iniExpense').value) || 0;
+  if (iniExpense <= 0) return alert("Please enter monthly expense");
+
+  const inflation = (parseFloat(document.getElementById('inflation').value) || 0) / 100;
+  const yieldRate = (parseFloat(document.getElementById('yield').value) || 0) / 100;
+
+  // Determine tenure
+  if (!document.getElementById('tenureSection').classList.contains('hidden')) {
+    tenure = parseFloat(document.getElementById('tenure').value) || 30;
+  } else {
+    const current = parseFloat(document.getElementById('currentAge').value) || 35;
+    const end = parseFloat(document.getElementById('lifespan').value) || 90;
+    tenure = end - current;
+  }
+  if (tenure <= 0) tenure = 30;
+
+  // Read incomes
+  const monthlyIncome = parseFloat(document.getElementById('monthlyIncome').value) || 0;
+  const monthlyInc = document.getElementById('monthlyIncOpt')?.value.toLowerCase().includes('y') ?
+    (parseFloat(document.getElementById('monthlyIncPercent').value) || 0) / 100 : 0;
+
+  const yearlyIncome = parseFloat(document.getElementById('yearlyIncome').value) || 0;
+  const yearlyInc = document.getElementById('yearlyIncOpt')?.value.toLowerCase().includes('y') ?
+    (parseFloat(document.getElementById('yearlyIncPercent').value) || 0) / 100 : 0;
+
+  // Read withdrawals & inflows
+  for (let i = 0; i < 5; i++) {
+    withdrawalYears[i] = parseFloat(document.getElementById(`wdYear${i}`)?.value) || 999;
+    withdrawals[i] = parseFloat(document.getElementById(`wdAmt${i}`)?.value) || 0;
+  }
+  for (let i = 0; i < 10; i++) {
+    irregularYears[i] = parseFloat(document.getElementById(`irrYear${i}`)?.value) || 999;
+    irregulars[i] = parseFloat(document.getElementById(`irrAmt${i}`)?.value) || 0;
+  }
+
+  let requiredCorpus = 0;
+  let currentExpense = iniExpense * 12;
+  let currentMonthlyInc = monthlyIncome * 12;
+  let currentYearlyInc = yearlyIncome;
+  let year = 1;
+
+  while (year <= tenure + 1) {  // +1 to cover last year
+    let netCashFlow = currentExpense - currentMonthlyInc - currentYearlyInc;
+
+    // Add big expenses
+    let wdThisYear = 0;
+    for (let i = 0; i < withdrawals.length; i++) {
+      if (Math.abs(withdrawalYears[i] - year) < 0.1) wdThisYear += withdrawals[i];
+    }
+
+    // Subtract irregular inflows
+    let inflowThisYear = 0;
+    for (let i = 0; i < irregulars.length; i++) {
+      if (Math.abs(irregularYears[i] - year) < 0.1) inflowThisYear += irregulars[i];
+    }
+
+    netCashFlow += wdThisYear - inflowThisYear;
+
+    // Discount back to present
+    requiredCorpus += netCashFlow / Math.pow(1 + yieldRate, year - 1);
+
+    // Inflate for next year
+    currentExpense *= (1 + inflation);
+    currentMonthlyInc *= (1 + monthlyInc);
+    currentYearlyInc *= (1 + yearlyInc);
+
+    year++;
+  }
+
+  requiredCorpus = Math.max(0, Math.round(requiredCorpus));
+
+  document.getElementById('result').innerHTML = `
+    <div class="big-result">₹${requiredCorpus.toLocaleString('en-IN')}</div>
+    <p><strong>Required Corpus Today</strong> to sustain your lifestyle for <strong>${tenure.toFixed(1)} years</strong></p>
+        <p class="result-details">
+      First year expense: ₹${(iniExpense*12).toLocaleString('en-IN')}/year<br>
+      Expected return: ${(yieldRate*100).toFixed(1)}% | Inflation: ${(inflation*100).toFixed(1)}%
+    </p>
+  `;
+  document.getElementById('result').classList.remove('hidden');
+}
+
+// Mobile menu
+document.querySelector('.hamburger')?.addEventListener('click', () => {
+  document.querySelector('.nav-links').classList.toggle('active');
+});
+</script>
+</body>
+</html>

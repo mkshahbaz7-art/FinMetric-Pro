@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Calculator</title>
+<link rel="stylesheet" href="style.css">
+    </head>
+<body>
+<div id="nav-include"></div>
+<script src="common.js"></script>
+
+        <div class="container">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Step-Up SIP & Lumpsum Calculator</h1> 
+        <div class="calculator-container">
+                        <div class="input-grid">
+                                <div class="input-group">
+                    <label for="yield">Annual Expected Return (%)</label>
+                    <input type="number" id="yield" value="12.0" step="0.1" min="0">
+                </div>
+                
+                                <div class="input-group">
+                    <label for="ini_sip">Initial Monthly SIP Amount (₹)</label>
+                    <input type="number" id="ini_sip" value="10000" step="100" min="1">
+                </div>
+                
+                                <div class="input-group">
+                    <label for="stepUp">Annual Step-Up (%)</label>
+                    <input type="number" id="stepUp" value="10.0" step="0.1" min="0">
+                </div>
+                                                <div class="input-group">
+                    <label for="years">Investment Period (Years)</label>
+                    <input type="number" id="years" value="10.0" step="0.01" min="0.08">
+                </div>
+            </div>
+
+        
+                        <div class="lumpsum-section">
+                <h2 class="text-xl font-semibold text-gray-700 mb-3">Lumpsum Payments (Optional)</h2>
+                <div class="lumpsum-list" id="lumpsumList">
+                    </div>
+            
+                <button class="add-btn" onclick="addLumpsum()">+ Add Lumpsum Investment</button>
+
+            </div>
+
+        
+                        <button onclick="calculateMaturity()" class="calculate-btn">
+                Calculate Maturity Value
+            </button>
+
+                        <div id="result" class="result hidden">
+                <h3 class="result-heading">Maturity Value:</h3>
+                <p id="maturity-value"></p>
+            </div>
+
+                        <div id="error-message" class="error-box hidden">
+                Please ensure all input fields are valid numbers.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        
+        let lumpsumCount = 0;
+
+        
+        function addLumpsum() {
+            lumpsumCount++;
+            const list = document.getElementById('lumpsumList');
+            
+            const div = document.createElement('div');
+            div.className = 'lumpsum-item';
+            div.id = `lumpsum-${lumpsumCount}`;
+            
+            div.innerHTML = `
+                <input type="number" placeholder="Lumpsum Amount (₹)" class="ls-amount" step="1000">
+                <input type="number" placeholder="After how many years?" class="ls-years" step="0.5" min="0.1" max="50">
+                <button class="remove-btn" onclick="removeLumpsum('lumpsum-${lumpsumCount}')">×</button>
+            `;
+            
+            list.appendChild(div);
+        }
+
+        function removeLumpsum(id) {
+            document.getElementById(id).remove();
+        }
+
+        function calculateMaturity() {
+            const yieldRate = parseFloat(document.getElementById('yield').value);
+            const ini_sip = parseFloat(document.getElementById('ini_sip').value);
+            const years = parseFloat(document.getElementById('years').value);
+            const stepUp = parseFloat(document.getElementById('stepUp').value);
+
+            const resultDiv = document.getElementById('result');
+            const errorDiv = document.getElementById('error-message');
+
+            if (isNaN(yieldRate) || isNaN(ini_sip) || isNaN(years) || isNaN(stepUp) || years <= 0 || ini_sip <= 0) {
+                errorDiv.innerText = "Please ensure all main inputs (Return, SIP, Years, Step-Up) are valid and positive numbers.";
+                errorDiv.classList.remove('hidden');
+                resultDiv.classList.add('hidden');
+                return;
+            }
+            errorDiv.classList.add('hidden');
+
+            let sip = ini_sip;
+            let maturity = 0;
+            let ls_maturity = 0.0;
+
+            const r = Math.pow(1 + yieldRate / 100, 1.0 / 12.0) - 1;
+            const rn = Math.pow(r + 1, 12);
+
+            const y = Math.floor(years);
+            const part_year = years - y;
+            
+            
+            let month = part_year * 12;
+            const months = Math.floor(month);
+
+            const lumpsumItems = document.querySelectorAll('.lumpsum-item');
+
+            lumpsumItems.forEach(item => {
+                const ls_amount = parseFloat(item.querySelector('.ls-amount').value) || 0;
+                const interval = parseFloat(item.querySelector('.ls-years').value) || 0;
+
+                if (ls_amount > 0 && interval >= 0 && interval < years) {
+                    const compoundingPeriods = (years - interval) * 12;
+                    ls_maturity += ls_amount * Math.pow(1 + r, compoundingPeriods);
+                }
+            });
+
+            
+            for (let i = 1; i <= y; i++) {
+                
+                const end_year = sip * (rn - 1) / r * (1 + r);
+
+                const compoundingPeriods = (years - i) * 12;
+                const year_maturity = end_year * Math.pow(1 + r, compoundingPeriods);
+                
+                maturity += year_maturity;
+
+                sip = sip * (1 + stepUp / 100);
+            }
+
+            
+            if (months > 0) {
+                
+                const rm = Math.pow(r + 1, months);
+                
+                const end = sip * (rm - 1) / r * (1 + r);
+                
+                maturity += end;
+            }
+
+            maturity = maturity + ls_maturity;
+
+    
+            const formattedMaturity = maturity.toLocaleString(undefined, {
+                minimumFractionDigits: 0, 
+                maximumFractionDigits: 0
+            });
+            document.getElementById('maturity-value').textContent = `₹${formattedMaturity}`;
+            resultDiv.classList.remove('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            addLumpsum(); 
+        });
+
+        document.querySelector('.hamburger')?.addEventListener('click', () => {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
