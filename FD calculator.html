@@ -8,14 +8,7 @@
     </head>
 <body>
 <div id="nav-include"></div>
-
-<script>
-    fetch("navbar.html")
-    .then(response => response.text())
-    .then(data => {
-        document.getElementById("nav-include").innerHTML = data;
-    });
-</script>
+<script src="common.js"></script>
 
     <h1>Fixed Deposit Maturity Calculator</h1>
 <div class="calculator-container">
@@ -76,4 +69,5 @@ document.querySelector('.hamburger').addEventListener('click', () => {
     </script>
 
 </body>
+
 </html>
