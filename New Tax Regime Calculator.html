@@ -4,69 +4,80 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Tax Regime Calculator</title>
-<link rel="stylesheet" href="style.css">
-    </head>
+    <link rel="stylesheet" href="style.css">
+</head>
+
 <body>
-<div id="nav-include"></div>
-<script src="common.js"></script>
 
-<div class="container">
-    <h1>New Tax Regime Calculator (FY 2025-26 Onwards)</h1>
-    <div class="calculator-container">
-    <h1>Income Type Selector (FY 2025-26)</h1>
+    <div id="nav-include"></div>
+    <script src="common.js"></script>
 
-    <div class="option-buttons">
-        <label class="option-btn selected">
-            <input type="radio" name="input_type" value="taxable" checked>
-            Total Taxable Income
-        </label>
-        <label class="option-btn">
-            <input type="radio" name="input_type" value="pay_without">
-            Pay without Employer's Contribution
-        </label>
-        <label class="option-btn">
-            <input type="radio" name="input_type" value="gross">
-            Gross Pay
-        </label>
+    <h1>New Tax Regime Calculator</h1>
+
+    <div class="calculator-container" style="overflow-x: hidden;">
+
+        <div class="container">
+            <p class="info-text">Choose your input method below:</p>
+
+                <div class="option-buttons">
+                    <label class="option-btn selected">
+                        <input type="radio" name="input_type" value="taxable" checked>
+                        Total Taxable Income
+                    </label>
+
+                    <label class="option-btn">
+                        <input type="radio" name="input_type" value="pay_without">
+                        Pay without Employer's Contribution
+                    </label>
+
+                    <label class="option-btn">
+                        <input type="radio" name="input_type" value="gross">
+                        Gross Pay
+                    </label>
+                </div>
+
+                <div id="input_taxable" class="input-section">
+                    <label>Total Taxable Income (₹)</label>
+                    <input type="number" id="income_taxable" placeholder="e.g. 1000000">
+                </div>
+
+                <div id="input_pay_without" class="input-section hidden">
+                    <label>Pay without Employer's Contribution (₹)</label>
+                    <input type="number" id="income_pay_without" placeholder="e.g. 1200000">
+                    <p class="note">₹75,000 Standard Deduction will be applied automatically.</p>
+                </div>
+
+                <div id="input_gross" class="input-section hidden">
+                    <label>Gross Pay (before any deductions) (₹)</label>
+                    <input type="number" id="income_gross" placeholder="e.g. 1250000">
+                    <label>Employer's Contribution to EPF/NPS etc. (₹)</label>
+                    <input type="number" id="employer_contrib" value="0" placeholder="e.g. 150000">
+                    <p class="note">₹75,000 Standard Deduction will be applied automatically.</p>
+                </div>
+
+
+
+                <button type="button" onclick="calculateTax()">
+                    Calculate Tax
+                </button>
+
+                <div id="result" class="result hidden"></div>
+
+                    <div class="option-buttons">
+                        <a href="Old Tax Regime Calculator.html" class="option-btn" style="text-align:center;">
+                            </small>Old Tax Regime Calculator<small>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div id="input_taxable" class="input-section">
-        <label>Total Taxable Income (₹)</label>
-        <input type="number" id="income_taxable" placeholder="e.g. 1000000">
-    </div>
-
-    <div id="input_pay_without" class="input-section hidden">
-        <label>Pay without Employer's Contribution (₹)</label>
-        <input type="number" id="income_pay_without" placeholder="e.g. 1200000">
-        <p class="note">₹75,000 Standard Deduction will be applied automatically.</p>
-    </div>
-
-    <div id="input_gross" class="input-section hidden">
-        <label>Gross Pay (before any deductions) (₹)</label>
-        <input type="number" id="income_gross" placeholder="e.g. 1250000">
-        <label>Employer's Contribution to EPF/NPS etc. (₹)</label>
-        <input type="number" id="employer_contrib" value="0" placeholder="e.g. 150000">
-        <p class="note">₹75,000 Standard Deduction will be applied automatically.</p>
-    </div>
-
-
-
-        <button type="button" onclick="calculateTax()">
-            Calculate Tax
-        </button>
-
-        <div id="result" class="result hidden"></div>
-
-  	<div class="option-buttons">
-  		<a href="Old Tax Regime Calculator.html" class="option-btn" style="text-align:center;">
-     		 Old Tax Regime Calculator
-  		</a>
-    	</div>
-</div>
-
-<footer>
-    © 2025 FinMetric Pro. Made with ❤️ for people who want to stay one ahead in Finance
-</footer>
+    
+        <footer>
+            © 2025 FinMetric Pro. Made with ❤️ for people who want to stay one ahead in Finance
+        </footer>
+</body>
 
 <script>
     const STD = 75000;
@@ -201,8 +212,7 @@
     document.querySelector('.hamburger')?.addEventListener('click', () => {
         document.querySelector('.nav-links').classList.toggle('active');
     });
-</script>
-<script>
+
 document.addEventListener("DOMContentLoaded", function() {
     const radios = document.querySelectorAll("input[name='input_type']");
     const sections = document.querySelectorAll(".input-section");
@@ -220,6 +230,4 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
-
-</body>
 </html>
