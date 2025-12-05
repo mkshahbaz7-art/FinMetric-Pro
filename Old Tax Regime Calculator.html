@@ -1,427 +1,428 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Old Tax Regime Calculator</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Old Tax Regime Calculator</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="nav-include"></div>
-<script src="common.js"></script>
+    <div id="nav-include"></div>
+    <script src="common.js"></script>
 
-<div class="container">
-<h1>Old Tax Regime Calculator (FY 2025-26)</h1>
-<div class="calculator-container">
+    <div class="container">
+    <h1>Old Tax Regime Calculator (FY 2025-26)</h1>
+    <div class="calculator-container" style="overflow-x: hidden;">
 
-<p class="info-text">Choose your input method below:</p>
+    <p class="info-text">Choose your input method below:</p>
 
-<div class="option-buttons">
-<label class="option-btn selected">
-<input type="radio" name="input_type" value="taxable" checked>
-Total Taxable Income (after all deductions)
-</label>
+    <div class="option-buttons">
+    <label class="option-btn selected">
+    <input type="radio" name="input_type" value="taxable" checked>
+    Total Taxable Income (after all deductions)
+    </label>
 
-<label class="option-btn">
-<input type="radio" name="input_type" value="pay_without">
-Pay without Employer's Contribution
-</label>
+    <label class="option-btn">
+    <input type="radio" name="input_type" value="pay_without">
+    Pay without Employer's Contribution
+    </label>
 
-<label class="option-btn">
-<input type="radio" name="input_type" value="gross">
-Gross Salary (before any exemption/deduction)
-</label>
-</div>
+    <label class="option-btn">
+    <input type="radio" name="input_type" value="gross">
+    Gross Salary (before any exemption/deduction)
+    </label>
+    </div>
 
-<div id="input_taxable" class="input-section hidden">
-<label>Total Taxable Income (after all deductions & exemptions) (₹)</label>
-<input type="number" id="income_taxable" placeholder="e.g. 850000">
-<p class="note">Use this only if you already know your final taxable income.</p>
-</div>
+    <div id="input_taxable" class="input-section hidden">
+    <label>Total Taxable Income (after all deductions & exemptions) (₹)</label>
+    <input type="number" id="income_taxable" placeholder="e.g. 850000">
+    <p class="note">Use this only if you already know your final taxable income.</p>
+    </div>
 
-<div id="input_pay_without" class="input-section hidden">
+    <div id="input_pay_without" class="input-section hidden">
 
-<label>Annual Salary (excluding Employer's EPF/NPS contribution) (₹)</label>
-<input type="number" id="income_pay_without" placeholder="e.g. 1200000">
+    <label>Annual Salary (excluding Employer's EPF/NPS contribution) (₹)</label>
+    <input type="number" id="income_pay_without" placeholder="e.g. 1200000">
 
-<p class="note">₹50,000 Standard Deduction will be auto-applied.</p>
+    <p class="note">₹50,000 Standard Deduction will be auto-applied.</p>
 
-<div id="deductions_section_pw" class="input-section">
+    <div id="deductions_section_pw" class="input-section">
 
-<h3 class="deductions-heading">Standard Exemptions & Deductions (Old Regime)</h3>
+    <h3 class="deductions-heading">Standard Exemptions & Deductions (Old Regime)</h3>
 
-<label>House Rent Allowance (HRA) Received (₹)</label>
-<input type="number" id="hra_received_pw" value="0">
+    <label>House Rent Allowance (HRA) Received (₹)</label>
+    <input type="number" id="hra_received_pw" value="0">
 
-<label>Rent Paid Annually (₹)</label>
-<input type="number" id="rent_paid_pw" value="0">
+    <label>Rent Paid Annually (₹)</label>
+    <input type="number" id="rent_paid_pw" value="0">
 
-<label>Basic + DA (₹)</label>
-<input type="number" id="basic_da_pw" value="0">
+    <label>Basic + DA (₹)</label>
+    <input type="number" id="basic_da_pw" value="0">
 
-<div class="sub-note">Metro City?
-<select id="is_metro_pw">
-<option value="yes">Yes</option>
-<option value="no" selected>No</option>
-</select>
-</div>
+    <div class="sub-note">Metro City?
+    <select id="is_metro_pw">
+    <option value="yes">Yes</option>
+    <option value="no" selected>No</option>
+    </select>
+    </div>
 
-<label>80C + 80CCC + 80CCD(1)</label>
-<input type="number" id="c80_pw" value="0">
+    <label>80C + 80CCC + 80CCD(1)</label>
+    <input type="number" id="c80_pw" value="0">
 
-<label>80CCD(1B) - Additional deduction for voluntary contribution in NPS by self</label>
-<input type="number" id="ccd1b_pw" value="0">
+    <label>80CCD(1B) - Additional deduction for voluntary contribution in NPS by self</label>
+    <input type="number" id="ccd1b_pw" value="0">
 
-<label>Home Loan Interest u/s 24(b)</label>
-<input type="number" id="home_interest_pw" value="0">
+    <label>Home Loan Interest u/s 24(b)</label>
+    <input type="number" id="home_interest_pw" value="0">
 
-<label>80D – Health Insurance Premium for Self/Family</label>
-<input type="number" id="d80_self_pw" value="0">
+    <label>80D – Health Insurance Premium for Self/Family</label>
+    <input type="number" id="d80_self_pw" value="0">
 
-<label>80D – Health Insurance Premium for Parents</label>
-<input type="number" id="d80_parents_pw" value="0">
+    <label>80D – Health Insurance Premium for Parents</label>
+    <input type="number" id="d80_parents_pw" value="0">
 
-<label>Senior (Self/Family)?</label>
-<select id="senior_self_pw"><option value="no">No</option><option value="yes">Yes</option></select>
+    <label>Senior (Self/Family)?</label>
+    <select id="senior_self_pw"><option value="no">No</option><option value="yes">Yes</option></select>
 
-<label>Senior Parents?</label>
-<select id="senior_parents_pw"><option value="no">No</option><option value="yes">Yes</option></select>
+    <label>Senior Parents?</label>
+    <select id="senior_parents_pw"><option value="no">No</option><option value="yes">Yes</option></select>
 
-<label>Interest on Savings (80TTA/TTB)</label>
-<input type="number" id="saving_interest_pw" value="0">
+    <label>Interest on Savings (80TTA/TTB)</label>
+    <input type="number" id="saving_interest_pw" value="0">
 
-<label>Are you a Senior Citizen?</label>
-<select id="senior_for_80ttb_pw"><option value="no">No</option><option value="yes">Yes</option></select>
+    <label>Are you a Senior Citizen?</label>
+    <select id="senior_for_80ttb_pw"><option value="no">No</option><option value="yes">Yes</option></select>
 
-</div>
-<button type="button" class="toggle-btn" onclick="toggleDeductions('less_common_pw')">
-    Show Less Common Deductions (80E, 80G, etc.)
-</button>
-<div id="less_common_pw" class="input-section hidden">
-    <h3 class="deductions-heading">Less Common Deductions</h3>
-    
-    <label>80EEB - Interest on Electric Vehicle Loan (Max ₹1,50,000)</label>
-    <input type="number" id="eeb80_pw" value="0">
-    
-    <label>80E - Interest on Education Loan (Full Deduction)</label>
-    <input type="number" id="e80_pw" value="0">
+    </div>
+    <button type="button" class="toggle-btn" onclick="toggleDeductions('less_common_pw')">
+        Show Less Common Deductions (80E, 80G, etc.)
+    </button>
+    <div id="less_common_pw" class="input-section hidden">
+        <h3 class="deductions-heading">Less Common Deductions</h3>
+        
+        <label>80EEB - Interest on Electric Vehicle Loan (Max ₹1,50,000)</label>
+        <input type="number" id="eeb80_pw" value="0">
+        
+        <label>80E - Interest on Education Loan (Full Deduction)</label>
+        <input type="number" id="e80_pw" value="0">
 
-    <label>80G - Donations (Enter Deductible Amount)</label>
-    <input type="number" id="g80_pw" value="0">
+        <label>80G - Donations (Enter Deductible Amount)</label>
+        <input type="number" id="g80_pw" value="0">
 
-    <label>80GG - Rent Paid where HRA is NOT received (Max ₹60,000)</label>
-    <input type="number" id="gg80_pw" value="0">
+        <label>80GG - Rent Paid where HRA is NOT received (Max ₹60,000)</label>
+        <input type="number" id="gg80_pw" value="0">
 
-    <label>80CCH - Contribution to Agniveer Corpus Fund (Full Deduction)</label>
-    <input type="number" id="cch80_pw" value="0">
+        <label>80CCH - Contribution to Agniveer Corpus Fund (Full Deduction)</label>
+        <input type="number" id="cch80_pw" value="0">
 
-    <label>80U - Disability of Self (Enter 75000 or 125000)</label>
-    <input type="number" id="u80_pw" value="0">
-    
-    <label>80GGC - Contribution to Political Parties (Full Deduction)</label>
-    <input type="number" id="ggc80_pw" value="0">
-</div>
-</div>
+        <label>80U - Disability of Self (Enter 75000 or 125000)</label>
+        <input type="number" id="u80_pw" value="0">
+        
+        <label>80GGC - Contribution to Political Parties (Full Deduction)</label>
+        <input type="number" id="ggc80_pw" value="0">
+    </div>
+    </div>
 
-<div id="input_gross" class="input-section hidden">
+    <div id="input_gross" class="input-section hidden">
 
-<label>Gross Salary (₹)</label>
-<input type="number" id="income_gross" placeholder="e.g. 1500000">
+    <label>Gross Salary (₹)</label>
+    <input type="number" id="income_gross" placeholder="e.g. 1500000">
 
-<label>Employer Contribution to EPF/NPS (₹)</label>
-<input type="number" id="employer_contrib" value="0">
+    <label>Employer Contribution to EPF/NPS (₹)</label>
+    <input type="number" id="employer_contrib" value="0">
 
-<p class="note">Standard Deduction + HRA + 80CCD(2) will apply.</p>
+    <p class="note">Standard Deduction + HRA + 80CCD(2) will apply.</p>
 
-<div id="deductions_section_gr" class="input-section">
+    <div id="deductions_section_gr" class="input-section">
 
-<h3 class="deductions-heading">Standard Exemptions & Deductions (Old Regime)</h3>
+    <h3 class="deductions-heading">Standard Exemptions & Deductions (Old Regime)</h3>
 
-<label>HRA Received (₹)</label>
-<input type="number" id="hra_received_gr" value="0">
+    <label>HRA Received (₹)</label>
+    <input type="number" id="hra_received_gr" value="0">
 
-<label>Rent Paid (₹)</label>
-<input type="number" id="rent_paid_gr" value="0">
+    <label>Rent Paid (₹)</label>
+    <input type="number" id="rent_paid_gr" value="0">
 
-<label>Basic + DA</label>
-<input type="number" id="basic_da_gr" value="0">
+    <label>Basic + DA</label>
+    <input type="number" id="basic_da_gr" value="0">
 
-<div class="sub-note">Metro City?
-<select id="is_metro_gr">
-<option value="yes">Yes</option>
-<option value="no" selected>No</option>
-</select>
-</div>
+    <div class="sub-note">Metro City?
+    <select id="is_metro_gr">
+    <option value="yes">Yes</option>
+    <option value="no" selected>No</option>
+    </select>
+    </div>
 
-<label>80C + 80CCC + 80CCD(1)</label>
-<input type="number" id="c80_gr" value="0">
+    <label>80C + 80CCC + 80CCD(1)</label>
+    <input type="number" id="c80_gr" value="0">
 
-<label>80CCD(1B) - Additional deduction for voluntary contribution in NPS by self</label>
-<input type="number" id="ccd1b_gr" value="0">
+    <label>80CCD(1B) - Additional deduction for voluntary contribution in NPS by self</label>
+    <input type="number" id="ccd1b_gr" value="0">
 
-<div id="employer_nps_section">
-<label>Employer NPS 80CCD(2)</label>
-<input type="number" id="ccd2_gr" value="0">
+    <div id="employer_nps_section">
+    <label>Employer NPS 80CCD(2)</label>
+    <input type="number" id="ccd2_gr" value="0">
 
-<label>Govt Employee?</label>
-<select id="govt_employee_gr">
-<option value="no">No</option>
-<option value="yes">Yes</option>
-</select>
-</div>
+    <label>Govt Employee?</label>
+    <select id="govt_employee_gr">
+    <option value="no">No</option>
+    <option value="yes">Yes</option>
+    </select>
+    </div>
 
-<label>Home Loan Interest</label>
-<input type="number" id="home_interest_gr" value="0">
+    <label>Home Loan Interest</label>
+    <input type="number" id="home_interest_gr" value="0">
 
-<label>80D – Health Insurance Premium for Self/Family</label>
-<input type="number" id="d80_self_gr" value="0">
+    <label>80D – Health Insurance Premium for Self/Family</label>
+    <input type="number" id="d80_self_gr" value="0">
 
-<label>80D – Health Insurance Premium for Parents</label>
-<input type="number" id="d80_parents_gr" value="0">
+    <label>80D – Health Insurance Premium for Parents</label>
+    <input type="number" id="d80_parents_gr" value="0">
 
-<label>Senior (Self/Family)?</label>
-<select id="senior_self_gr"><option value="no">No</option><option value="yes">Yes</option></select>
+    <label>Senior (Self/Family)?</label>
+    <select id="senior_self_gr"><option value="no">No</option><option value="yes">Yes</option></select>
 
-<label>Senior Parents?</label>
-<select id="senior_parents_gr"><option value="no">No</option><option value="yes">Yes</option></select>
+    <label>Senior Parents?</label>
+    <select id="senior_parents_gr"><option value="no">No</option><option value="yes">Yes</option></select>
 
-<label>Interest on Savings</label>
-<input type="number" id="saving_interest_gr" value="0">
+    <label>Interest on Savings</label>
+    <input type="number" id="saving_interest_gr" value="0">
 
-<label>Senior Citizen?</label>
-<select id="senior_for_80ttb_gr"><option value="no">No</option><option value="yes">Yes</option></select>
+    <label>Senior Citizen?</label>
+    <select id="senior_for_80ttb_gr"><option value="no">No</option><option value="yes">Yes</option></select>
 
-</div>
-<button type="button" class="toggle-btn" onclick="toggleDeductions('less_common_gr')">
-    Show Less Common Deductions (80E, 80G, etc.)
-</button>
-<div id="less_common_gr" class="input-section hidden">
-    <h3 class="deductions-heading">Less Common Deductions</h3>
-    
-    <label>80EEB - Interest on Electric Vehicle Loan (Max ₹1,50,000)</label>
-    <input type="number" id="eeb80_gr" value="0">
-    
-    <label>80E - Interest on Education Loan (Full Deduction)</label>
-    <input type="number" id="e80_gr" value="0">
+    </div>
+        <button type="button" class="toggle-btn" onclick="toggleDeductions('less_common_gr')">
+        Show Less Common Deductions (80E, 80G, etc.)
+        </button>
+    <div id="less_common_gr" class="input-section hidden">
+            <h3 class="deductions-heading">Less Common Deductions</h3>
+        
+            <label>80EEB - Interest on Electric Vehicle Loan (Max ₹1,50,000)</label>
+            <input type="number" id="eeb80_gr" value="0">
+        
+            <label>80E - Interest on Education Loan (Full Deduction)</label>
+            <input type="number" id="e80_gr" value="0">
 
-    <label>80G - Donations (Enter Deductible Amount)</label>
-    <input type="number" id="g80_gr" value="0">
+            <label>80G - Donations (Enter Deductible Amount)</label>
+            <input type="number" id="g80_gr" value="0">
 
-    <label>80GG - Rent Paid where HRA is NOT received (Max ₹60,000)</label>
-    <input type="number" id="gg80_gr" value="0">
-    
-    <label>80CCH - Contribution to Agniveer Corpus Fund (Full Deduction)</label>
-    <input type="number" id="cch80_gr" value="0">
+            <label>80GG - Rent Paid where HRA is NOT received (Max ₹60,000)</label>
+            <input type="number" id="gg80_gr" value="0">
+        
+            <label>80CCH - Contribution to Agniveer Corpus Fund (Full Deduction)</label>
+            <input type="number" id="cch80_gr" value="0">
 
-    <label>80U - Disability of Self (Enter 75000 or 125000)</label>
-    <input type="number" id="u80_gr" value="0">
+            <label>80U - Disability of Self (Enter 75000 or 125000)</label>
+            <input type="number" id="u80_gr" value="0">
 
-    <label>80GGC - Contribution to Political Parties (Full Deduction)</label>
-    <input type="number" id="ggc80_gr" value="0">
-</div>
-</div>
-
-<button type="button" onclick="calculateOldTax()">Calculate Tax</button>
-
-<div id="result" class="result hidden"></div>
-
- <div class="option-buttons">
-  <a href="New Tax Regime Calculator.html" class="option-btn" style="text-align:center;">
-      New Tax Regime Calculator
-  </a>
+            <label>80GGC - Contribution to Political Parties (Full Deduction)</label>
+            <input type="number" id="ggc80_gr" value="0">
+            </div>
         </div>
 
-</div>
-</div>
-<footer id="page-footer">
-© 2025 FinMetric Pro.
-</footer>
+        <button type="button" onclick="calculateOldTax()">Calculate Tax</button>
 
-<script>
-const STD_OLD = 50000;
-const CESS = 0.04;
+        <div id="result" class="result hidden"></div>
 
-/* SHOW/HIDE SECTIONS */
-document.querySelectorAll('input[name="input_type"]').forEach(radio => {
-    radio.addEventListener('change', () => {
-        document.getElementById('input_taxable').classList.add('hidden');
-        document.getElementById('input_pay_without').classList.add('hidden');
-        document.getElementById('input_gross').classList.add('hidden');
+    
 
-        if (radio.value === 'taxable')
-            document.getElementById('input_taxable').classList.remove('hidden');
-        else if (radio.value === 'pay_without')
-            document.getElementById('input_pay_without').classList.remove('hidden');
-        else
-            document.getElementById('input_gross').classList.remove('hidden');
-    });
-});
+    </div>
+    </div>
+        <div class="option-buttons">
+            <a href="New Tax Regime Calculator.html" class="option-btn" style="text-align:center;">
+                New Tax Regime Calculator
+            </a>
+        </div>
+    <footer id="page-footer">
+        © 2025 FinMetric Pro.
+    </footer>
 
-document.querySelectorAll('.option-btn input').forEach(radio => {
-    radio.addEventListener('change', () => {
-        document.querySelectorAll('.option-btn').forEach(btn =>
-            btn.classList.remove('selected')
-        );
-        radio.parentElement.classList.add('selected');
-    });
-});
+    <script>
+        const STD_OLD = 50000;
+        const CESS = 0.04;
 
-document.querySelector('input[name="input_type"]:checked')
-    .dispatchEvent(new Event('change'));
+        /* SHOW/HIDE SECTIONS */
+        document.querySelectorAll('input[name="input_type"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                document.getElementById('input_taxable').classList.add('hidden');
+                document.getElementById('input_pay_without').classList.add('hidden');
+                document.getElementById('input_gross').classList.add('hidden');
 
-/* NEW TOGGLE FUNCTION */
-function toggleDeductions(id) {
-    const section = document.getElementById(id);
-    const button = section.previousElementSibling; 
-    if (section.classList.contains('hidden')) {
-        section.classList.remove('hidden');
-        button.innerHTML = 'Hide Less Common Deductions (80E, 80G, etc.)';
-    } else {
-        section.classList.add('hidden');
-        button.innerHTML = 'Show Less Common Deductions (80E, 80G, etc.)';
-    }
-}
+                if (radio.value === 'taxable')
+                    document.getElementById('input_taxable').classList.remove('hidden');
+                else if (radio.value === 'pay_without')
+                    document.getElementById('input_pay_without').classList.remove('hidden');
+                else
+                    document.getElementById('input_gross').classList.remove('hidden');
+            });
+        });
 
-/* SMALL HELPER */
-function v(id){return parseFloat(document.getElementById(id).value)||0;}
+        document.querySelectorAll('.option-btn input').forEach(radio => {
+            radio.addEventListener('change', () => {
+                document.querySelectorAll('.option-btn').forEach(btn =>
+                    btn.classList.remove('selected')
+                );
+                radio.parentElement.classList.add('selected');
+            });
+        });
 
-/* UNIVERSAL HRA CALC */
-function calcHRA(type) {
-    const hra = v("hra_received_"+type);
-    const rent = v("rent_paid_"+type);
-    const basic = v("basic_da_"+type);
-    const metro = document.getElementById("is_metro_"+type).value === "yes";
+        document.querySelector('input[name="input_type"]:checked')
+            .dispatchEvent(new Event('change'));
 
-    if (!hra || !rent || !basic) return 0;
+        /* NEW TOGGLE FUNCTION */
+        function toggleDeductions(id) {
+            const section = document.getElementById(id);
+            const button = section.previousElementSibling; 
+            if (section.classList.contains('hidden')) {
+                section.classList.remove('hidden');
+                button.innerHTML = 'Hide Less Common Deductions (80E, 80G, etc.)';
+            } else {
+                section.classList.add('hidden');
+                button.innerHTML = 'Show Less Common Deductions (80E, 80G, etc.)';
+            }
+        }
 
-    return Math.max(0,
-        Math.min(
-            hra,
-            rent - 0.10 * basic,
-            metro ? 0.5 * basic : 0.4 * basic
-        )
-    );
-}
+        /* SMALL HELPER */
+        function v(id){return parseFloat(document.getElementById(id).value)||0;}
 
-/* MAIN CALC */
-function calculateOldTax() {
-    const mode = document.querySelector('input[name="input_type"]:checked').value;
+        /* UNIVERSAL HRA CALC */
+        function calcHRA(type) {
+            const hra = v("hra_received_"+type);
+            const rent = v("rent_paid_"+type);
+            const basic = v("basic_da_"+type);
+            const metro = document.getElementById("is_metro_"+type).value === "yes";
 
-    let gross = 0;
+            if (!hra || !rent || !basic) return 0;
 
-    if (mode === "taxable") {
-        gross = v("income_taxable");
-    } 
-    else if (mode === "pay_without") {
-        gross = v("income_pay_without");
-    } 
-    else {
-        gross = v("income_gross") + v("employer_contrib");
-    }
+            return Math.max(0,
+                Math.min(
+                    hra,
+                    rent - 0.10 * basic,
+                    metro ? 0.5 * basic : 0.4 * basic
+                )
+            );
+        }
 
-    if (gross <= 0) {
-        document.getElementById("result").innerHTML =
-        "<p class='error-msg'>Enter valid income</p>";
-        document.getElementById("result").classList.remove("hidden");
-        return;
-    }
+        /* MAIN CALC */
+        function calculateOldTax() {
+            const mode = document.querySelector('input[name="input_type"]:checked').value;
 
-    let taxable = gross;
-    let exemptions = 0;
-    let deductions = 0;
+            let gross = 0;
 
-    // Apply Standard Deduction
-    if (mode !== "taxable") taxable -= STD_OLD;
+            if (mode === "taxable") {
+            gross = v("income_taxable");
+                } 
+                else if (mode === "pay_without") {
+                    gross = v("income_pay_without");
+                } 
+                else {
+                    gross = v("income_gross") + v("employer_contrib");
+        }
 
-    /* HRA & Employer NPS */
-    let t = null;
-    if (mode === "pay_without") t = "pw";
-    else if (mode === "gross") t = "gr";
+            if (gross <= 0) {
+                document.getElementById("result").innerHTML =
+                "<p class='error-msg'>Enter valid income</p>";
+                document.getElementById("result").classList.remove("hidden");
+                return;
+            }
 
-    if (mode !== "taxable") {
-        const hraEx = calcHRA(t);
-        exemptions += hraEx;
-        taxable -= hraEx;
+            let taxable = gross;
+            let exemptions = 0;
+            let deductions = 0;
 
-        /* Employer NPS only for gross (80CCD(2) Exemption) */
-        if (mode === "gross") {
-            const basic = v("basic_da_gr");
-            const max = document.getElementById("govt_employee_gr").value==="yes"
-                ? 0.14 * basic : 0.10 * basic;
-            const emp = Math.min(v("ccd2_gr"), max);
-            exemptions += emp;
-            taxable -= emp;
-        }
-    }
+            // Apply Standard Deduction
+            if (mode !== "taxable") taxable -= STD_OLD;
 
-    /* Standard Deductions (Chapter VI-A) */
-    if (mode !== "taxable") {
-        // 80C, 80CCC, 80CCD(1) - Max 1,50,000
-        deductions += Math.min(v("c80_"+t), 150000); 
-        // 80CCD(1B) - Max 50,000
-        deductions += Math.min(v("ccd1b_"+t), 50000); 
-        // 24(b) Home Loan Interest - Max 2,00,000
-        deductions += Math.min(v("home_interest_"+t), 200000); 
+            /* HRA & Employer NPS */
+            let t = null;
+            if (mode === "pay_without") t = "pw";
+            else if (mode === "gross") t = "gr";
 
-        // 80D Limits
-        const selfLim = document.getElementById("senior_self_"+t).value==="yes"?50000:25000;
-        const parLim  = document.getElementById("senior_parents_"+t).value==="yes"?50000:25000;
-        deductions += Math.min(v("d80_self_"+t), selfLim);
-        deductions += Math.min(v("d80_parents_"+t), parLim);
+            if (mode !== "taxable") {
+                const hraEx = calcHRA(t);
+                exemptions += hraEx;
+                taxable -= hraEx;
 
-        // 80TTA/TTB Limits
-        const si = v("saving_interest_"+t);
-        deductions += document.getElementById("senior_for_80ttb_"+t).value==="yes"
-            ? Math.min(si, 50000) // 80TTB (Senior Citizen)
-            : Math.min(si, 10000); // 80TTA (Normal)
-            
-        deductions += Math.min(v("eeb80_"+t), 150000); 
+                /* Employer NPS only for gross (80CCD(2) Exemption) */
+                if (mode === "gross") {
+                    const basic = v("basic_da_gr");
+                    const max = document.getElementById("govt_employee_gr").value==="yes"
+                        ? 0.14 * basic : 0.10 * basic;
+                    const emp = Math.min(v("ccd2_gr"), max);
+                    exemptions += emp;
+                    taxable -= emp;
+                }
+            }
 
-        deductions += v("e80_"+t); 
-        deductions += v("g80_"+t); 
-        
-        // 80GG - Max 60,000 (Simplified)
-        deductions += Math.min(v("gg80_"+t), 60000); 
-        
-        // 80CCH - Contribution to Agniveer Corpus Fund (Full Deduction)
-        deductions += v("cch80_"+t); 
+            /* Standard Deductions (Chapter VI-A) */
+            if (mode !== "taxable") {
+                // 80C, 80CCC, 80CCD(1) - Max 1,50,000
+                deductions += Math.min(v("c80_"+t), 150000); 
+                // 80CCD(1B) - Max 50,000
+                deductions += Math.min(v("ccd1b_"+t), 50000); 
+                // 24(b) Home Loan Interest - Max 2,00,000
+                deductions += Math.min(v("home_interest_"+t), 200000); 
 
-        const u80Val = v("u80_"+t);
-        deductions += u80Val > 0 ? (u80Val > 75000 ? 125000 : 75000) : 0; 
-        
-        deductions += v("ggc80_"+t);
-        
-    }
+                // 80D Limits
+                const selfLim = document.getElementById("senior_self_"+t).value==="yes"?50000:25000;
+                const parLim  = document.getElementById("senior_parents_"+t).value==="yes"?50000:25000;
+                deductions += Math.min(v("d80_self_"+t), selfLim);
+                deductions += Math.min(v("d80_parents_"+t), parLim);
 
-    taxable = Math.max(0, taxable - deductions);
-    taxable = Math.round(taxable); 
+                // 80TTA/TTB Limits
+                const si = v("saving_interest_"+t);
+                deductions += document.getElementById("senior_for_80ttb_"+t).value==="yes"
+                    ? Math.min(si, 50000) // 80TTB (Senior Citizen)
+                    : Math.min(si, 10000); // 80TTA (Normal)
+                    
+                deductions += Math.min(v("eeb80_"+t), 150000); 
+
+                deductions += v("e80_"+t); 
+                deductions += v("g80_"+t); 
+                
+                // 80GG - Max 60,000 (Simplified)
+                deductions += Math.min(v("gg80_"+t), 60000); 
+                
+                // 80CCH - Contribution to Agniveer Corpus Fund (Full Deduction)
+                deductions += v("cch80_"+t); 
+
+                const u80Val = v("u80_"+t);
+                deductions += u80Val > 0 ? (u80Val > 75000 ? 125000 : 75000) : 0; 
+                
+                deductions += v("ggc80_"+t);
+                
+            }
+
+            taxable = Math.max(0, taxable - deductions);
+            taxable = Math.round(taxable); 
 
 
-    let tax = 0;
-    
-    if (taxable > 250000) tax += Math.min(250000, taxable-250000)*0.05;
-    
-    if (taxable > 500000) tax += Math.min(500000, taxable-500000)*0.20;
-    
-    if (taxable > 1000000) tax += (taxable-1000000)*0.30;
-    
-    tax = Math.max(0, tax);
+            let tax = 0;
+            
+            if (taxable > 250000) tax += Math.min(250000, taxable-250000)*0.05;
+            
+            if (taxable > 500000) tax += Math.min(500000, taxable-500000)*0.20;
+            
+            if (taxable > 1000000) tax += (taxable-1000000)*0.30;
+            
+            tax = Math.max(0, tax);
 
-    
-    let rebate = taxable <= 500000 ? Math.min(tax, 12500) : 0;
+            
+            let rebate = taxable <= 500000 ? Math.min(tax, 12500) : 0;
 
-    let after = tax - rebate;
-    let cess = 0.04*after;
-    let total = after + cess;
+            let after = tax - rebate;
+            let cess = 0.04*after;
+            let total = after + cess;
 
-    document.getElementById("result").innerHTML = `
-        <h3>Old Regime Tax Result</h3>
-        <p><strong>Taxable Income:</strong> ₹${taxable.toLocaleString("en-IN")}</p>
-        <p><strong>Total Tax Payable:</strong> ₹${Math.round(total).toLocaleString("en-IN")}</p>
-    `;
-    document.getElementById("result").classList.remove("hidden");
-}
-</script>
+            document.getElementById("result").innerHTML = `
+                <h3>Old Regime Tax Result</h3>
+                <p><strong>Taxable Income:</strong> ₹${taxable.toLocaleString("en-IN")}</p>
+                <p><strong>Total Tax Payable:</strong> ₹${Math.round(total).toLocaleString("en-IN")}</p>
+            `;
+            document.getElementById("result").classList.remove("hidden");
+        }
+    </script>
 
 </body>
 </html>
