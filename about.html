@@ -8,14 +8,7 @@
     </head>
 <body>
 <div id="nav-include"></div>
-
-<script>
-    fetch("navbar.html")
-    .then(response => response.text())
-    .then(data => {
-        document.getElementById("nav-include").innerHTML = data;
-    });
-</script>
+<script src="common.js"></script>
 
     <div class="hero">
         <h1>About FinMetric Pro</h1>
@@ -60,4 +53,5 @@
     </script>
 <script src="common.js"></script>
 </body>
+
 </html>
