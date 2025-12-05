@@ -8,15 +8,7 @@
     </head>
 <body>
 <div id="nav-include"></div>
-
-<script>
-    fetch("navbar.html")
-    .then(response => response.text())
-    .then(data => {
-        document.getElementById("nav-include").innerHTML = data;
-    });
-</script>
-
+<script src="common.js"></script>
     <section class="hero">
         <h1>FinMetric Pro</h1>
         <p>Your All-in-One Free Financial Calculator Suite<br>FD • RD • SIP • EMI • SWP • Step-Up • Prepayment • Appreciation & More</p>
@@ -48,3 +40,4 @@ document.querySelector('.hamburger').addEventListener('click', () => {
 </body>
 
 </html>
+
