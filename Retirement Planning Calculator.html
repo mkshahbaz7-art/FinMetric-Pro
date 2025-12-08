@@ -3,329 +3,272 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>How Much SIP Do I Need to Retire?</title>
+<title>Retirement SIP Planner | FinMetric Pro</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <div id="nav-include"></div>
 <script src="common.js"></script>
 
 <div class="container">
-<h1>How Much SIP Do I Need to Retire?</h1>
-<div class="calculator-container">
-
-<!-- AGE SECTION -->
-<div class="section">
-  <label>Current Age</label>
-  <input type="number" id="currentAge" value="30" min="18" max="70">
-
-  <label>Retirement Age</label>
-  <input type="number" id="retireAge" value="58" min="30" max="100">
-
-  <label>Life Expectancy (or till age)</label>
-  <input type="number" id="lifeAge" value="90" min="60" max="120">
-</div>
-
-<!-- EXPENSE TYPE -->
-<div class="section">
-  <label>Monthly Expense Input Method</label>
-  <div class="inline-btns">
-    <button type="button" onclick="document.querySelector('input[value=current]').checked=true; showSection('currentExpenseBox'); hideSection('futureExpenseBox');">Current</button>
-    <button type="button" onclick="document.querySelector('input[value=future]').checked=true; hideSection('currentExpenseBox'); showSection('futureExpenseBox');">Future</button>
-  </div>
-
-  <input type="radio" name="expenseType" value="current" checked hidden>
-  <input type="radio" name="expenseType" value="future" hidden>
-</div>
-
-<!-- CURRENT EXPENSE -->
-<div id="currentExpenseBox" class="section">
-  <label>Current Monthly Expense (₹)</label>
-  <input type="number" id="currentMonthlyExpense" value="60000">
-</div>
-
-<!-- FUTURE EXPENSE -->
-<div id="futureExpenseBox" class="section hidden">
-  <label>Desired Monthly Expense at Retirement (₹ in today's value)</label>
-  <input type="number" id="futureMonthlyExpense">
-</div>
-
-<!-- INFLATION -->
-<div class="section">
-  <label>Expected Inflation (% per year)</label>
-  <input type="number" id="inflation" step="0.1" value="6">
-</div>
-
-<!-- RETURNS -->
-<div class="section">
-  <label>Expected Return During Retirement (%)</label>
-  <input type="number" id="postReturn" step="0.1" value="7.5">
-
-  <label>Expected Return on SIP (Accumulation Phase) (%)</label>
-  <input type="number" id="sipReturn" step="0.1" value="12">
-
-  <label>Annual SIP Step-Up (%)</label>
-  <input type="number" id="stepUp" step="0.1" value="10">
-</div>
-
-<!-- MONTHLY INCOME -->
-<div class="section">
-  <label>Any regular monthly income in retirement?</label>
-  <div class="inline-btns">
-    <button type="button" onclick="showSection('monthlySection')">Yes</button>
-    <button type="button" onclick="hideSection('monthlySection')">No</button>
-  </div>
-</div>
-
-<div id="monthlySection" class="section hidden">
-  <label>Monthly Income (₹)</label>
-  <input type="number" id="monthlyIncome">
-
-  <label>Will it increase? (Yes/No)</label>
-  <input type="text" id="monthlyIncOpt" maxlength="3">
-
-  <div id="monthlyIncRate" class="hidden">
-    <label>Annual Increase %</label>
-    <input type="number" id="monthlyIncPercent" step="0.1" value="5">
-  </div>
-</div>
-
-<!-- YEARLY INCOME -->
-<div class="section">
-  <label>Any regular yearly income?</label>
-  <div class="inline-btns">
-    <button type="button" onclick="showSection('yearlySection')">Yes</button>
-    <button type="button" onclick="hideSection('yearlySection')">No</button>
-  </div>
-</div>
-
-<div id="yearlySection" class="section hidden">
-  <label>Yearly Income (₹)</label>
-  <input type="number" id="yearlyIncome">
-
-  <label>Will it increase? (Yes/No)</label>
-  <input type="text" id="yearlyIncOpt" maxlength="3">
-
-  <div id="yearlyIncRate" class="hidden">
-    <label>Annual Increase %</label>
-    <input type="number" id="yearlyIncPercent" step="0.1" value="5">
-  </div>
-</div>
-
-<!-- BIG WITHDRAWALS -->
-<div class="section">
-  <label>Big One-Time Expenses in Retirement? (Max 5)</label>
-  <div class="inline-btns">
-    <button type="button" onclick="enableWithdrawals=true; addWithdrawal();">Yes</button>
-    <button type="button" onclick="enableWithdrawals=false; document.getElementById('withdrawalsList').innerHTML=''; withdrawals.length=0;">No</button>
-  </div>
-</div>
-
-<div id="withdrawalsList"></div>
-<button id="addWithdrawalBtn" class="hidden" onclick="addWithdrawal()">+ Add Another Expense</button>
-
-<!-- IRREGULAR INFLOWS -->
-<div class="section">
-  <label>Irregular Inflows (inheritance, sale)? (Max 10)</label>
-  <div class="inline-btns">
-    <button type="button" onclick="enableIrregular=true; addIrregular();">Yes</button>
-    <button type="button" onclick="enableIrregular=false; document.getElementById('irregularList').innerHTML=''; irregulars.length=0;">No</button>
+  <h1>How Much SIP Do I Need to Retire?</h1>
+  <div class="calculator-container">
+    <div class="section">
+      <h2>Ages & Tenure</h2>
+      <label>Current Age</label>
+      <input type="number" id="currentAge" value="30" min="18" max="70">
+      <label>Retirement Age</label>
+      <input type="number" id="retireAge" value="58" min="30" max="100">
+      <label>Life Expectancy (or till age)</label>
+      <input type="number" id="lifeAge" value="90" min="60" max="120">
+    </div>
+    <div class="section">
+      <h2>Retirement Expenses</h2>
+      <label>Monthly Expense Input Method</label>
+      <div class="inline-btns">
+        <button type="button" onclick="document.querySelector('input[value=current]').checked=true; showSection('currentExpenseBox'); hideSection('futureExpenseBox');">Current Expense</button>
+        <button type="button" onclick="document.querySelector('input[value=future]').checked=true; hideSection('currentExpenseBox'); showSection('futureExpenseBox');">Expense at Retirement</button>
+      </div>
+      <input type="radio" name="expenseType" value="current" checked hidden>
+      <input type="radio" name="expenseType" value="future" hidden>
+    </div>
+    <div id="currentExpenseBox" class="section">
+      <label>Current Monthly Expense (₹)</label>
+      <input type="number" id="currentMonthlyExpense" value="60000">
+    </div>
+    <div id="futureExpenseBox" class="section hidden">
+      <label>Monthly Expense in First Year of Retirement (₹)</label>
+      <input type="number" id="futureMonthlyExpense" placeholder="e.g. 100000">
+    </div>
+    <div class="section">
+      <h2>Rates</h2>
+      <label>Expected Annual Return on Investments during Accumulation (%)</label>
+      <input type="number" id="accumYield" step="0.1" value="12">
+      <label>Expected Annual Return during Retirement (%)</label>
+      <input type="number" id="retireYield" step="0.1" value="10">
+      <label>Expected Inflation (% per year)</label>
+      <input type="number" id="inflation" step="0.1" value="6">
+      <label>Annual SIP Step-Up (%)</label>
+      <input type="number" id="stepUp" step="0.1" value="10">
+    </div>
+    <div class="section">
+      <h2>Existing Investments</h2>
+      <label>Current Value of FD/Debt Assets (₹)</label>
+      <input type="number" id="fdValue" value="0">
+      <label>Expected Return on FD/Debt (%)</label>
+      <input type="number" id="fdRate" step="0.1" value="7">
+      <label>Current Value of MF/Equity Assets (₹)</label>
+      <input type="number" id="mfValue" value="0">
+      <label>Expected Return on MF/Equity (%)</label>
+      <input type="number" id="mfRate" step="0.1" value="12">
+    </div>
+    <!-- Regular Income, Withdrawals, Inflows — unchanged UI -->
+    <div class="section">
+      <h2>Regular Retirement Income</h2>
+      <label>Any regular monthly income? (e.g. pension)</label>
+      <div class="inline-btns">
+        <button type="button" onclick="showSection('monthlySection')">Yes</button>
+        <button type="button" onclick="hideSection('monthlySection'); document.getElementById('monthlyIncome').value=0">No</button>
+      </div>
+    </div>
+    <div id="monthlySection" class="section hidden">
+      <label>Monthly Income (₹)</label>
+      <input type="number" id="monthlyIncome" value="0">
+      <label>Will it increase annually? (Y/N)</label>
+      <input type="text" id="monthlyIncOpt" maxlength="1">
+      <div id="monthlyIncRate" class="hidden">
+        <label>Annual Increase (%)</label>
+        <input type="number" id="monthlyIncPercent" step="0.1" value="5">
+      </div>
+    </div>
+    <div class="section">
+      <label>Any regular yearly income? (e.g. rental)</label>
+      <div class="inline-btns">
+        <button type="button" onclick="showSection('yearlySection')">Yes</button>
+        <button type="button" onclick="hideSection('yearlySection'); document.getElementById('yearlyIncome').value=0">No</button>
+      </div>
+    </div>
+    <div id="yearlySection" class="section hidden">
+      <label>Yearly Income (₹)</label>
+      <input type="number" id="yearlyIncome" value="0">
+      <label>Will it increase annually? (Y/N)</label>
+      <input type="text" id="yearlyIncOpt" maxlength="1">
+      <div id="yearlyIncRate" class="hidden">
+        <label>Annual Increase (%)</label>
+        <input type="number" id="yearlyIncPercent" step="0.1" value="5">
+      </div>
+    </div>
+    <!-- One-time flows — same as before -->
+    <div class="section">
+      <h2>Big One-Time Expenses During Retirement? (Max 5)</h2>
+      <div class="inline-btns">
+        <button type="button" onclick="enableWithdrawals=true; addWithdrawal();">Yes</button>
+        <button type="button" onclick="enableWithdrawals=false; document.getElementById('withdrawalsList').innerHTML=''; withdrawals=[];">No</button>
+      </div>
+    </div>
+    <div id="withdrawalsList"></div>
+    <button id="addWithdrawalBtn" class="hidden" onclick="addWithdrawal()">+ Add Another Expense</button>
+    <div class="section">
+      <h2>Expected One-Time Inflows? (Max 10)</h2>
+      <div class="inline-btns">
+        <button type="button" onclick="enableIrregular=true; addIrregular();">Yes</button>
+        <button type="button" onclick="enableIrregular=false; document.getElementById('irregularList').innerHTML=''; irregulars=[];">No</button>
+      </div>
+    </div>
+    <div id="irregularList"></div>
+    <button id="addIrregularBtn" class="hidden" onclick="addIrregular()">+ Add Another Inflow</button>
+    <div class="section calculate-btn-section">
+      <button onclick="calculate()">Calculate My Monthly SIP</button>
+    </div>
+    <div id="result" class="result hidden">
+      <h2>Required Starting SIP</h2>
+      <div class="big" id="sipAmount">₹0</div>
+      <p><strong>Start this SIP every month from today</strong></p>
+      <div id="details"></div>
+    </div>
   </div>
 </div>
-
-<div id="irregularList"></div>
-<button id="addIrregularBtn" class="hidden" onclick="addIrregular()">+ Add Another Inflow</button>
-
-<!-- CALCULATE -->
-<div class="section calculate-btn-section">
-  <button onclick="calculate()">Calculate My Monthly SIP</button>
-</div>
-
-<!-- RESULT -->
-<div id="result" class="result hidden">
-  <div class="big" id="sipAmount">₹0</div>
-  <p><strong>Start this SIP every month from today</strong></p>
-  <div id="details"></div>
-</div>
-
-</div>
-</div>
-
-
 <script>
-let withdrawals = [];
-let withdrawalYears = [];
-let irregulars = [];
-let irregularYears = [];
-let enableWithdrawals = false;
-let enableIrregular = false;
-
+let withdrawals = [], irregulars = [];
+let enableWithdrawals = false, enableIrregular = false;
 function showSection(id) { document.getElementById(id)?.classList.remove('hidden'); }
 function hideSection(id) { document.getElementById(id)?.classList.add('hidden'); }
-
-// Toggle expense input boxes
-document.querySelectorAll('input[name="expenseType"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-        if (this.value === 'current') {
-            showSection('currentExpenseBox');
-            hideSection('futureExpenseBox');
-        } else {
-            hideSection('currentExpenseBox');
-            showSection('futureExpenseBox');
-        }
-    });
-});
-
-// Income increase toggles
-document.getElementById('monthlyIncOpt')?.addEventListener('input', () => {
-    const incRate = document.getElementById('monthlyIncRate');
-    if (incRate) {
-        incRate.classList.toggle('hidden',
-            !document.getElementById('monthlyIncOpt').value.toLowerCase().includes('y'));
-    }
-});
-document.getElementById('yearlyIncOpt')?.addEventListener('input', () => {
-    const incRate = document.getElementById('yearlyIncRate');
-    if (incRate) {
-        incRate.classList.toggle('hidden',
-            !document.getElementById('yearlyIncOpt').value.toLowerCase().includes('y'));
-    }
-});
-
-function addWithdrawal() {
-    if (withdrawals.length >= 5) return alert("Max 5");
-    const i = withdrawals.length;
-    const div = document.createElement('div'); div.className = 'list-item';
-    div.id = `wdItem${i}`; 
-    div.innerHTML = `<label>Expense ${i+1}: Amount (₹)</label><input type="number" id="wdAmt${i}" value="0">
-                     <label>In year from retirement?</label><input type="number" step="0.1" id="wdYear${i}" value="1">`;
-    document.getElementById('withdrawalsList').appendChild(div);
-    withdrawals.push(0);
-    withdrawalYears.push(0);
-    showSection('addWithdrawalBtn');
-    if (withdrawals.length >= 5) hideSection('addWithdrawalBtn');
+// UI Logic (unchanged)
+document.querySelectorAll('input[name="expenseType"]').forEach(r => r.addEventListener('change', () => {
+  (r.value === "current") ? (showSection('currentExpenseBox'), hideSection('futureExpenseBox'))
+                          : (hideSection('currentExpenseBox'), showSection('futureExpenseBox'));
+}));
+document.getElementById("monthlyIncOpt")?.addEventListener("input", e => 
+  document.getElementById("monthlyIncRate").classList.toggle("hidden", !/y/i.test(e.target.value)));
+document.getElementById("yearlyIncOpt")?.addEventListener("input", e => 
+  document.getElementById("yearlyIncRate").classList.toggle("hidden", !/y/i.test(e.target.value)));
+// Dynamic rows (same)
+function addWithdrawal() { 
+  if (withdrawals.length >= 5) return alert("Max 5");
+  const i = withdrawals.length;
+  const div = document.createElement("div"); div.className = "list-item";
+  div.innerHTML = `<label>Expense ${i+1} (₹)</label><input type="number" id="wdAmt${i}" value="0">
+                   <label>Year from retirement</label><input type="number" step="0.1" id="wdYear${i}" value="1">`;
+  document.getElementById("withdrawalsList").appendChild(div);
+  withdrawals.push(0);
+  showSection("addWithdrawalBtn");
+  if (withdrawals.length >= 5) hideSection("addWithdrawalBtn");
 }
-
-function addIrregular() {
-    if (irregulars.length >= 10) return alert("Max 10");
-    const i = irregulars.length;
-    const div = document.createElement('div'); div.className = 'list-item';
-    div.id = `irrItem${i}`; 
-    div.innerHTML = `<label>Inflow ${i+1}: Amount (₹)</label><input type="number" id="irrAmt${i}" value="0">
-                     <label>In year from retirement?</label><input type="number" step="0.1" id="irrYear${i}" value="1">`;
-    document.getElementById('irregularList').appendChild(div);
-    irregulars.push(0);
-    irregularYears.push(0);
-    showSection('addIrregularBtn');
+function addIrregular() { 
+  if (irregulars.length >= 10) return alert("Max 10");
+  const i = irregulars.length;
+  const div = document.createElement("div"); div.className = "list-item";
+  div.innerHTML = `<label>Inflow ${i+1} (₹)</label><input type="number" id="irrAmt${i}" value="0">
+                   <label>Year from retirement</label><input type="number" step="0.1" id="irrYear${i}" value="1">`;
+  document.getElementById("irregularList").appendChild(div);
+  irregulars.push(0);
+  showSection("addIrregularBtn");
+  if (irregulars.length >= 10) hideSection("addIrregularBtn");
 }
-
-
-// Main calculation — with bug fixes for input reading
+// ——— EXACT C CODE TRANSLATION STARTS HERE ———
 function calculate() {
-    const currentAge = parseInt(document.getElementById('currentAge').value) || 0;
-    const retireAge = parseInt(document.getElementById('retireAge').value) || 0;
-    const lifeAge = parseInt(document.getElementById('lifeAge').value) || 0;
-    const sipYears = retireAge - currentAge;
-    const retirementYears = lifeAge - retireAge;
-
-    if (sipYears < 1 || retirementYears < 1) return alert("Please check ages");
-
-    const inflation = parseFloat(document.getElementById('inflation').value) / 100 || 0;
-    const postReturn = parseFloat(document.getElementById('postReturn').value) / 100 || 0;
-    const sipReturn = parseFloat(document.getElementById('sipReturn').value) / 100 || 0;
-    const stepUpRate = parseFloat(document.getElementById('stepUp').value) / 100 || 0;
-
-    // Determine expense at retirement
-    let expenseAtRetirement;
-    if (document.querySelector('input[name="expenseType"]:checked').value === 'current') {
-        const currentExp = parseFloat(document.getElementById('currentMonthlyExpense').value) || 0;
-        expenseAtRetirement = currentExp * Math.pow(1 + inflation, sipYears) * 12;
-    } else {
-        const futureExp = parseFloat(document.getElementById('futureMonthlyExpense').value) || 0;
-        expenseAtRetirement = futureExp * 12;
-    }
-
-    // Read incomes (with null/undefined checks)
-    const monthlyIncome = parseFloat(document.getElementById('monthlyIncome')?.value) || 0;
-    const monthlyIncOptElement = document.getElementById('monthlyIncOpt');
-    const monthlyInc = monthlyIncOptElement?.value.toLowerCase().includes('y') ?
-        parseFloat(document.getElementById('monthlyIncPercent')?.value || 0) / 100 : 0;
-    
-    const yearlyIncome = parseFloat(document.getElementById('yearlyIncome')?.value) || 0;
-    const yearlyIncOptElement = document.getElementById('yearlyIncOpt');
-    const yearlyInc = yearlyIncOptElement?.value.toLowerCase().includes('y') ?
-        parseFloat(document.getElementById('yearlyIncPercent')?.value || 0) / 100 : 0;
-
-    let currentWithdrawals = [];
-    let currentWithdrawalYears = [];
-    let currentIrregulars = [];
-    let currentIrregularYears = [];
-    
-    const withdrawalElements = document.getElementById('withdrawalsList').querySelectorAll('.list-item');
-    withdrawalElements.forEach((item, i) => {
-        const amt = parseFloat(document.getElementById(`wdAmt${i}`)?.value) || 0;
-        const year = parseFloat(document.getElementById(`wdYear${i}`)?.value) || 999;
-        if (amt > 0) {
-            currentWithdrawals.push(amt);
-            currentWithdrawalYears.push(year);
-        }
-    });
-
-    const irregularElements = document.getElementById('irregularList').querySelectorAll('.list-item');
-    irregularElements.forEach((item, i) => {
-        const amt = parseFloat(document.getElementById(`irrAmt${i}`)?.value) || 0;
-        const year = parseFloat(document.getElementById(`irrYear${i}`)?.value) || 999;
-        if (amt > 0) {
-            currentIrregulars.push(amt);
-            currentIrregularYears.push(year);
-        }
-    });
-    
-    // Step 1: Required corpus at retirement (Your original logic retained)
-    let requiredCorpus = 0;
-    let expense = expenseAtRetirement;
-    let mInc = monthlyIncome * 12;
-    let yInc = yearlyIncome;
-    for (let y = 1; y <= retirementYears + 1; y++) {
-        let net = expense - mInc - yInc;
-        // Check dynamic withdrawal/irregular arrays
-        currentWithdrawalYears.forEach((wdYear, i) => {
-             if (Math.abs(wdYear - y) < 0.1) net += currentWithdrawals[i];
-        });
-        currentIrregularYears.forEach((irrYear, i) => {
-             if (Math.abs(irrYear - y) < 0.1) net -= currentIrregulars[i];
-        });
-        
-        requiredCorpus += net / Math.pow(1 + postReturn, y - 1);
-        expense *= (1 + inflation);
-        mInc *= (1 + monthlyInc);
-        yInc *= (1 + yearlyInc);
-    }
-    requiredCorpus = Math.max(0, Math.round(requiredCorpus));
-
-    // Step 2 & 3: SIP calculation (Your original logic retained)
-    const monthlyRate = Math.pow(1 + sipReturn, 1/12) - 1;
-    let sip = 1;
-    let maturityOfOneRupee = 0;
-    for (let y = 1; y <= sipYears; y++) {
-        let fv = sip * (Math.pow(1 + monthlyRate, 12) - 1) / monthlyRate * (1 + monthlyRate);
-        maturityOfOneRupee += fv * Math.pow(1 + sipReturn, sipYears - y);
-        sip *= (1 + stepUpRate);
-    }
-    const requiredSIP = requiredCorpus / maturityOfOneRupee;
-
-    // Display
-    document.getElementById('sipAmount').innerText = '₹' + Math.round(requiredSIP).toLocaleString('en-IN');
-    document.getElementById('details').innerHTML = `
-        <strong>Corpus needed at age ${retireAge}:</strong> ₹${(requiredCorpus/1e7).toFixed(2)} Crore<br>
-        <strong>SIP Tenure:</strong> ${sipYears} years (age ${currentAge} to ${retireAge})<br>
-        <strong>Step-Up:</strong> ${(stepUpRate*100).toFixed(1)}% | <strong>Return:</strong> ${(sipReturn*100).toFixed(1)}%
-    `;
-    document.getElementById('result').classList.remove('hidden');
+  // Inputs
+  const currentAge = parseFloat(document.getElementById("currentAge").value);
+  const retireAge = parseFloat(document.getElementById("retireAge").value);
+  const lifeAge = parseFloat(document.getElementById("lifeAge").value);
+  const sipTenure = retireAge - currentAge;
+  const tenure = lifeAge - retireAge;
+  if (sipTenure <= 0 || tenure <= 0) return alert("Invalid ages");
+  const accumYield = parseFloat(document.getElementById("accumYield").value) / 100;
+  const retireYield = parseFloat(document.getElementById("retireYield").value) / 100;
+  const inflation = parseFloat(document.getElementById("inflation").value) / 100;
+  const stepUp = parseFloat(document.getElementById("stepUp").value) / 100;
+  const fdValue = parseFloat(document.getElementById("fdValue").value) || 0;
+  const fdRate = parseFloat(document.getElementById("fdRate").value) / 100 || 0;
+  const mfValue = parseFloat(document.getElementById("mfValue").value) || 0;
+  const mfRate = parseFloat(document.getElementById("mfRate").value) / 100 || 0;
+  // Expense at retirement
+  let iniExpense;
+  if (document.querySelector('input[name="expenseType"]:checked').value === "current") {
+    const cur = parseFloat(document.getElementById("currentMonthlyExpense").value) || 0;
+    iniExpense = cur * Math.pow(1 + inflation, sipTenure);
+  } else {
+    iniExpense = parseFloat(document.getElementById("futureMonthlyExpense").value) || 0;
+  }
+  // Regular income
+  const monthlyPay = parseFloat(document.getElementById("monthlyIncome")?.value) || 0;
+  const yearlyPay = parseFloat(document.getElementById("yearlyIncome")?.value) || 0;
+  const monthlyPayInc = /y/i.test(document.getElementById("monthlyIncOpt")?.value) ? 
+    parseFloat(document.getElementById("monthlyIncPercent").value)/100 : 0;
+  const yearlyPayInc = /y/i.test(document.getElementById("yearlyIncOpt")?.value) ? 
+    parseFloat(document.getElementById("yearlyIncPercent").value)/100 : 0;
+  // Irregular flows
+  const withdrawalAmounts = [], withdrawalYears = [];
+  document.querySelectorAll("#withdrawalsList .list-item").forEach((_, i) => {
+    const amt = parseFloat(document.getElementById(`wdAmt${i}`)?.value) || 0;
+    const yr = parseFloat(document.getElementById(`wdYear${i}`)?.value) || 999;
+    if (amt > 0) { withdrawalAmounts.push(amt); withdrawalYears.push(yr); }
+  });
+  const inflowAmounts = [], inflowYears = [];
+  document.querySelectorAll("#irregularList .list-item").forEach((_, i) => {
+    const amt = parseFloat(document.getElementById(`irrAmt${i}`)?.value) || 0;
+    const yr = parseFloat(document.getElementById(`irrYear${i}`)?.value) || 999;
+    if (amt > 0) { inflowAmounts.push(amt); inflowYears.push(yr); }
+  });
+  // ——— CORPUS CALCULATION (exact C logic) ———
+  let requiredCorpus = 0;
+  let currentExpense = iniExpense;
+  let currentMonthlyPay = monthlyPay;
+  let currentYearlyPay = yearlyPay;
+  for (let year = 1; year <= tenure; year++) {
+    let netIrregular = 0;
+    withdrawalAmounts.forEach((amt, i) => { if (Math.round(withdrawalYears[i]) === year) netIrregular -= amt; });
+    inflowAmounts.forEach((amt, i) => { if (Math.round(inflowYears[i]) === year) netIrregular += amt; });
+    const yearlyExpense = currentExpense * 12;
+    const yearlyIncome = currentMonthlyPay * 12 + currentYearlyPay;
+    const cashNeeded = yearlyExpense - yearlyIncome - netIrregular;
+    requiredCorpus += cashNeeded / Math.pow(1 + retireYield, year);
+    currentExpense *= (1 + inflation);
+    currentMonthlyPay *= (1 + monthlyPayInc);
+    currentYearlyPay *= (1 + yearlyPayInc);
+  }
+  // ——— EXISTING ASSETS FV ———
+  let existingFV = 0;
+  if (fdValue > 0) existingFV += fdValue * Math.pow(1 + fdRate, sipTenure);
+  if (mfValue > 0) existingFV += mfValue * Math.pow(1 + mfRate, sipTenure);
+  let netCorpus = requiredCorpus - existingFV;
+  if (netCorpus <= 0) {
+    document.getElementById("sipAmount").innerText = "₹0";
+    document.getElementById("details").innerHTML = `Your existing assets (₹${Math.round(existingFV).toLocaleString("en-IN")}) already cover the required corpus!`;
+    document.getElementById("result").classList.remove("hidden");
+    return;
+  }
+  // ——— SIP FV (your exact C block method + fractional year) ———
+  const fullYears = Math.floor(sipTenure);
+  const partYear = sipTenure - fullYears;
+  const extraMonths = Math.round(partYear * 12);
+  const r = Math.pow(1 + accumYield, 1/12) - 1;
+  const rn = Math.pow(1 + r, 12);
+  let sip = 1;
+  let unitFV = 0;
+  for (let i = 1; i <= fullYears; i++) {
+    const endYear = sip * (rn - 1) / r * (1 + r);
+    const monthsLeft = (sipTenure - i) * 12;
+    unitFV += endYear * Math.pow(1 + r, monthsLeft);
+    sip *= (1 + stepUp);
+  }
+  if (extraMonths > 0) {
+    const rm = Math.pow(1 + r, extraMonths);
+    const end = sip * (rm - 1) / r * (1 + r);
+    unitFV += end;
+  }
+  const requiredSIP = netCorpus / unitFV;
+  // ——— RESULT ———
+  document.getElementById("sipAmount").innerText = "₹" + Math.round(requiredSIP).toLocaleString("en-IN");
+  document.getElementById("details").innerHTML = `
+    <strong>Required Corpus at Retirement:</strong> ₹${Math.round(requiredCorpus).toLocaleString("en-IN")}<br>
+    <strong>Existing Assets FV:</strong> ₹${Math.round(existingFV).toLocaleString("en-IN")}<br>
+    <strong>Net Corpus Needed:</strong> ₹${Math.round(netCorpus).toLocaleString("en-IN")}<br>
+    <strong>SIP Tenure:</strong> ${sipTenure.toFixed(1)} years
+  `;
+  document.getElementById("result").classList.remove("hidden");
 }
 </script>
-
+<div id="footer-include"></div>
 </body>
-
 </html>
