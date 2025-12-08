@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advance EMI Calculator</title>
+    <title>Advance EMI Calculator | FinMetric Pro</title>
 <link rel="stylesheet" href="style.css">
     </head>
 <body>
-<div id="nav-include"></div>
-<script src="common.js"></script>
+    <div id="nav-include"></div>
+    <script src="common.js"></script>
     <div class="container">
         <h1>EMI Calculator</h1>
-<div class="calculator-container">
+    <div class="calculator-container">
 
         <label>Loan Amount (₹)</label>
         <input type="number" id="loan" placeholder="e.g. 5000000" required>
@@ -22,11 +22,15 @@
         <label>Tenure (in years)</label>
         <input type="number" id="tenure" placeholder="e.g. 20" required>
 
-        <button type="button" onclick="calculate()">Calculate</button>
+        <button type="button" onclick="calculate()" id="simple_emi">Calculate</button>
+        <div id="result"></div>
         <button type="button" class="toggle-btn" id="toggleBtn">+ Add Prepayments (Optional)</button>
 	
-
+        
 <div id="prepaymentSection" class="hidden">
+    <label>Desired EMI (₹)</label>
+    <input type="number" id="desired_EMI" placeholder="">
+
     <label>Monthly Prepayment (₹)</label>
     <input type="number" id="monthly_pp" value="0">
     
@@ -51,12 +55,14 @@
 
     <label>Annual EMI increase (%)</label>
     <input type="number" step="0.1" id="emi_inc" value="0" placeholder="e.g. 5 for 5% every year">
+    <button type="button" onclick="calculate()">Calculate</button>
 </div>
-        <div id="result"></div>
+    <div id="result1" class="result hidden"></div>
+        
 </div>
     </div>
 
-    
+    <div id="footer-include"></div>
 <script>
     document.getElementById('toggleBtn').onclick = function() {
         const section = document.getElementById('prepaymentSection');
@@ -64,6 +70,9 @@
         if (section.style.display === 'none' || section.style.display === '') {
             section.style.display = 'block';
             btn.textContent = '− Hide Prepayments';
+            document.getElementById('simple_emi').classList.add("hidden");
+            document.getElementById('result').classList.add("hidden");
+            document.getElementById('result1').classList.remove("hidden");
         } else {
             section.style.display = 'none';
             btn.textContent = '+ Add Prepayments (Optional)';
@@ -93,7 +102,10 @@
         const r = rate / 1200;
         const n = years * 12;
         let emi = P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
-
+        let desiredEMI = parseFloat(document.getElementById('desired_EMI').value) || 0;
+        if (emi <= desiredEMI ) {emi = desiredEMI;}
+        else if (desiredEMI===0) ;
+        else alert ("Desired EMI cannot be smaller than actual EMI");
         let loan = P;
         let current_monthly_pp = monthly_pp;
         let current_yearly_pp = yearly_pp;
@@ -103,13 +115,13 @@
         const yearly_pp_start_month = Math.round(yearly_pp_time * 12);
         
 
-        let table = `<strong>EMI: ₹${emi.toFixed(2)}</strong><br><br>
-                     <table><tr><th>Month</th><th>Interest</th><th>Outstanding</th></tr>`;
-
+        let table = `<br><table><tr><th>Month</th><th>Interest</th><th>Outstanding</th></tr>`;
+        let tenure_dur=``;
+        let total_interest=0;
         for (let i = 1; i <= n && loan > 0; i++) {
             // Your custom interest calculation logic (retained as per your request)
             const interest = loan * rate / 36500 * 30.4;
-            
+            total_interest+=interest;
             // Start with the standard loan reduction (EMI)
             let out_loan = loan + interest - emi;
 
@@ -139,12 +151,13 @@
             }
 
             if (loan <= 0) {
-                table += `<tr><td colspan="3"><strong>Loan paid off in ${i} months!</strong></td></tr>`; 
+                tenure_dur += `<strong>Loan paid off in ${i} months! <br>Total interest paid will be ${total_interest.toFixed(0)} for EMI ${emi.toFixed(0)}.</strong><div style="font-size: 0.7em; color: #777777;"> Please note the total interest paid may vary slightly <br> based on banks, date of EMI payments etc.</div>`; 
                 break;
             }
         }
-        table += `</table>`;
+        table = tenure_dur + table +`</table>`;
         document.getElementById('result').innerHTML = table;
+        document.getElementById('result1').innerHTML = table;
     }
 
  document.querySelector('.hamburger').addEventListener('click', () => {
