@@ -1,126 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SIP + Lumpsum Investment Calculator</title>
-<link rel="stylesheet" href="style.css">
-  </head>
-<body>
-<div id="nav-include"></div>
-<script src="common.js"></script>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIP + Lumpsum Calculator | FinMetric Pro</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
 
-  <div class="container">
-    <h1>SIP + Lumpsum Calculator</h1>
-<div class="calculator-container">
-    <p class="subtitle">Monthly SIP with Multiple Future Lumpsum Investments</p>
+  <body>
+    <div id="nav-include"></div>
+    <script src="common.js"></script>
 
-    <label>Expected Annual Return (%)</label>
-    <input type="number" id="yield" step="0.1" placeholder="e.g. 12" value="12">
+    <div class="container">
+      <h1>SIP + Lumpsum Calculator</h1>
+      <div class="calculator-container">
+        <p class="subtitle">Monthly SIP with Multiple Future Lumpsum Investments</p>
 
-    <label>Monthly SIP Amount (₹)</label>
-    <input type="number" id="sip" placeholder="e.g. 10000" value="10000">
+        <label>Expected Annual Return (%)</label>
+        <input type="number" id="yield" step="0.1" placeholder="e.g. 12" value="12">
 
-    <label>Investment Period (Years)</label>
-    <input type="number" id="years" step="0.5" placeholder="e.g. 10" value="10">
+        <label>Monthly SIP Amount (₹)</label>
+        <input type="number" id="sip" placeholder="e.g. 10000" value="10000">
 
-<h2 class="text-xl font-semibold text-gray-700 mb-3">Lumpsum Payments (Optional)</h2>
-    <div class="lumpsum-list" id="lumpsumList">
-          </div>
+        <label>Investment Period (Years)</label>
+        <input type="number" id="years" step="0.5" placeholder="e.g. 10" value="10">
 
-    <button class="add-btn" onclick="addLumpsum()">+ Add Lumpsum Investment</button>
+        <h2 class="text-xl font-semibold text-gray-700 mb-3">Lumpsum Payments (Optional)</h2>
+        <div class="lumpsum-list" id="lumpsumList">
+        </div>
 
-        <button onclick="calculateSIP()" class="calculate-btn">
-      Calculate Future Value
-    </button>
+        <button class="add-btn" onclick="addLumpsum()">+ Add Lumpsum Investment</button>
 
-    <div class="result" id="result">Future Value: ₹0</div>
-    <div class="details" id="details"></div>
+        <button onclick="calculateSIP()" class="calculate-btn">
+          Calculate Future Value
+        </button>
 
-  </div>
-  </div>
 
-  <script>
-    let lumpsumCount = 0;
+        <div class="result" id="result">Future Value: ₹0</div>
+        <div class="details" id="details"></div>
+      </div>
+    </div>
 
-    function addLumpsum() {
-      lumpsumCount++;
-      const list = document.getElementById('lumpsumList');
-      
-      const div = document.createElement('div');
-      div.id = `lumpsum-${lumpsumCount}`;
-      div.style.marginBottom = '20px'; 
-      
-      div.innerHTML = `
-                    <label for="ls-amount-${lumpsumCount}">Lumpsum Amount (₹)</label>
-        <input type="number" id="ls-amount-${lumpsumCount}" class="ls-amount" step="1000">
-        <label for="ls-years-${lumpsumCount}">After how many years?</label>
-        <input type="number" id="ls-years-${lumpsumCount}" class="ls-years" step="0.5" min="0.1" max="50">
-        <button class="remove-btn" onclick="removeLumpsum('lumpsum-${lumpsumCount}')" style="background: #e53e3e; color: white; margin-top: 10px; width: 10x;">X</button>
-      `;
-      
-      list.appendChild(div);
-    }
+    <script>
+      let lumpsumCount = 0;
 
-    function removeLumpsum(id) {
-      document.getElementById(id).remove();
-    }
+      function addLumpsum() {
+        lumpsumCount++;
+        const list = document.getElementById('lumpsumList');
 
-    function calculateSIP() {
-      const yieldRate = parseFloat(document.getElementById('yield').value) || 0;
-      const sip = parseFloat(document.getElementById('sip').value) || 0;
-      const years = parseFloat(document.getElementById('years').value) || 0;
+        const div = document.createElement('div');
+        div.id = `lumpsum-${lumpsumCount}`;
+        div.style.marginBottom = '20px';
+        div.innerHTML = `
+          <label for="ls-amount-${lumpsumCount}">Lumpsum Amount (₹)</label>
+          <input type="number" id="ls-amount-${lumpsumCount}" class="ls-amount" step="1000">
+          <label for="ls-years-${lumpsumCount}">After how many years?</label>
+          <input type="number" id="ls-years-${lumpsumCount}" class="ls-years" step="0.5" min="0.1" max="50">
+          <button class="remove-btn" onclick="removeLumpsum('lumpsum-${lumpsumCount}')" style="background: #e53e3e; color: white; margin-top: 10px; width: 10x;">X</button>
+          `;
+        list.appendChild(div);
+      }
 
-      if (yieldRate <= 0 || sip <= 0 || years <= 0) {
-        alert("Please fill all SIP fields with valid values!");
-        return;
-      }
+      function removeLumpsum(id) {
+        document.getElementById(id).remove();
+      }
 
-      const r = Math.pow(1 + yieldRate / 100, 1 / 12) - 1;
-      const totalMonths = years * 12;
-      const rn = Math.pow(1 + r, totalMonths);
+      function calculateSIP() {
+        const yieldRate = parseFloat(document.getElementById('yield').value) || 0;
+        const sip = parseFloat(document.getElementById('sip').value) || 0;
+        const years = parseFloat(document.getElementById('years').value) || 0;
 
-      // SIP Maturity
-      const sipMaturity = sip * (rn - 1) / r * (1 + r);
+        if (yieldRate <= 0 || sip <= 0 || years <= 0) {
+        alert("Please fill all SIP fields with valid values!");
+        return;
+      }
 
-      // Lumpsum calculations
-      let lsMaturity = 0;
-      const lumpsumItems = document.querySelectorAll('#lumpsumList > div'); // Select direct children of list
+      const r = Math.pow(1 + yieldRate / 100, 1 / 12) - 1;
+      const totalMonths = years * 12;
+      const rn = Math.pow(1 + r, totalMonths);
+      // SIP Maturity
+      const sipMaturity = sip * (rn - 1) / r * (1 + r);
 
-      lumpsumItems.forEach(item => {
-        const amount = parseFloat(item.querySelector('.ls-amount').value) || 0;
-        const afterYears = parseFloat(item.querySelector('.ls-years').value) || 0;
+      // Lumpsum calculations
+      let lsMaturity = 0;
+      const lumpsumItems = document.querySelectorAll('#lumpsumList > div'); // Select direct children of list
 
-        if (amount > 0 && afterYears >= 0 && afterYears < years) {
-          const remainingYears = years - afterYears;
-          const monthsLeft = remainingYears * 12;
-          lsMaturity += amount * Math.pow(1 + r, monthsLeft);
-        }
-      });
+      lumpsumItems.forEach(item => {
+        const amount = parseFloat(item.querySelector('.ls-amount').value) || 0;
+        const afterYears = parseFloat(item.querySelector('.ls-years').value) || 0;
 
-      const totalMaturity = sipMaturity + lsMaturity;
-      const totalInvested = sip * totalMonths + 
-        Array.from(lumpsumItems).reduce((sum, item) => 
-          sum + (parseFloat(item.querySelector('.ls-amount').value) || 0), 0);
+          if (amount > 0 && afterYears >= 0 && afterYears < years) {
+            const remainingYears = years - afterYears;
+            const monthsLeft = remainingYears * 12;
+            lsMaturity += amount * Math.pow(1 + r, monthsLeft);
+          }
+        });
+        const totalMaturity = sipMaturity + lsMaturity;
+        const totalInvested = sip * totalMonths +
+        Array.from(lumpsumItems).reduce((sum, item) =>
+        sum + (parseFloat(item.querySelector('.ls-amount').value) || 0), 0);
 
-      const profit = totalMaturity - totalInvested;
+        const profit = totalMaturity - totalInvested;
 
-      document.getElementById('result').innerHTML = 
-        `Future Value: ₹${totalMaturity.toFixed(0).toLocaleString('en-IN')}`;
+        document.getElementById('result').innerHTML =
+        `Future Value: ₹${totalMaturity.toFixed(0).toLocaleString('en-IN')}`;
+        document.getElementById('details').innerHTML = `
+        <strong>Total Invested:</strong> ₹${totalInvested.toFixed(0).toLocaleString('en-IN')}<br>
+        <strong>Wealth Created:</strong> <span class="profit-value">₹${profit.toFixed(0).toLocaleString('en-IN')}</span><br>
+        <small>Return: +${((profit/totalInvested)*100).toFixed(1)}% on invested amount</small>
+        `;
+      }
+      
+      document.querySelector('.hamburger')?.addEventListener('click', () => {
+        document.querySelector('.nav-links').classList.toggle('active');
+      });
 
-      document.getElementById('details').innerHTML = `
-        <strong>Total Invested:</strong> ₹${totalInvested.toFixed(0).toLocaleString('en-IN')}<br>
-        <strong>Wealth Created:</strong> <span class="profit-value">₹${profit.toFixed(0).toLocaleString('en-IN')}</span><br>
-        <small>Return: +${((profit/totalInvested)*100).toFixed(1)}% on invested amount</small>
-      `;
-    }
-
-    // Removed window.onload to stop auto-adding the first entry
-    // window.onload = () => addLumpsum(); 
-    
-document.querySelector('.hamburger')?.addEventListener('click', () => {
-        document.querySelector('.nav-links').classList.toggle('active');
-    });
-  </script>
-</body>
+    </script>
+  <div id="footer-include"></div>
+  </body>
 </html>
