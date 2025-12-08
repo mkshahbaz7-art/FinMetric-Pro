@@ -18,7 +18,7 @@ body {
     min-height: 100vh;
 }
 
-/* 2. Fixed Navbar & Navigation */
+/* 2. Navbar & Navigation */
 .navbar {
     /* Bold gradient for header */
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -32,6 +32,8 @@ body {
     align-items: center;
 }
 .logo { font-size: 1.9rem; font-weight: bold; color: white; }
+.logo a { color: white !important; text-decoration: none  !important; }
+.logo a:visited {color: white; }
 .nav-links { display: flex; list-style: none; }
 .nav-links li { margin: 0 18px; position: relative; }
 .nav-links a { color: white; text-decoration: none; font-weight: 500; font-size: 1.05rem; transition: color 0.3s; }
@@ -175,7 +177,7 @@ button:hover {
 }
 .remove-btn:hover { background: #c53030; transform: none; box-shadow: none; }
 
-/* 6. Tax Regime Selector Styles (Page 17) */
+/* 6. Tax Regime Styles */
 .info-text { text-align: center; color: #718096; margin: 20px 0 10px; }
 .option-buttons {
     display: flex;
@@ -213,6 +215,14 @@ button:hover {
     position: absolute;
     opacity: 0;
     pointer-events: none;
+}
+.sub-heading {
+  font-size: 1em;
+  color: #333333;
+  margin-bottom: 0.5em;
+  padding-bottom: 0.3em;
+  text-align: center; 
+  position: relative;
 }
 
 /* 7. Home Page Specific Styles (Page 1) */
@@ -265,13 +275,20 @@ button:hover {
 
 /* 8. Footer Styles */
 footer {
+    background: #1a1a1a;
+    color: #ccc;
     text-align: center;
-    padding: 40px;
-    background: #2d3748;
-    color: white;
-    margin-top: 80px;
+    padding: 2rem 1rem;
+    margin-top: 4rem;
     font-size: 0.9rem;
 }
+.footer-content { max-width: 800px; margin: 0 auto; }
+.footer-links a {
+    color: #ccc;
+    margin: 0 12px;
+    text-decoration: none;
+}
+.footer-links a:hover { color: #fff; text-decoration: underline; }
 
 
 /* 9. Media Queries (Mobile Responsiveness) */
@@ -309,7 +326,14 @@ footer {
 @media (max-width: 600px) {
     body { padding-top: 60px; } /* Adjust body padding for smaller header */
     .navbar { padding: 0.8rem 5%; }
-    .logo { font-size: 1.6rem; }
+    .logo { font-size: 1.6rem;}
+    .logo a {
+        color: white !important;
+        text-decoration: none  !important; 
+    }
+    .logo a:visited {
+        color: white;
+    }
     .calculator-container {
         width: 95%;
         padding: 20px;
