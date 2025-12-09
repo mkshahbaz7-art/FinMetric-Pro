@@ -72,16 +72,19 @@
             section.style.display = 'block';
             btn.textContent = '− Hide Prepayments';
             document.getElementById('simple_emi').classList.add("hidden");
-            document.getElementById('result').classList.remove("hidden");
         } else {
             section.style.display = 'none';
             btn.textContent = '+ Add Prepayments (Optional)';
             document.getElementById('simple_emi').classList.remove("hidden");
-            document.getElementById('result').classList.add("hidden");
             document.getElementById("desired_EMI").value=0;
             document.getElementById("monthly_pp").value=0;
             document.getElementById("yearly_pp").value=0;
             document.getElementById("onetime_pp").value=0;
+			document.getElementById('emi_inc').value=0;
+			document.getElementById('yearly_pp_inc').value=0;
+			document.getElementById('monthly_pp_inc').value=0;
+			document.getElementById('yearly_pp_time').value=0;
+			document.getElementById('monthly_pp_time').value=0;
         }
     };
 
@@ -177,3 +180,4 @@
     </script>
 </body>
 </html>
+
