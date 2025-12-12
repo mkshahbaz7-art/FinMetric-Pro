@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Retirement Corpus Calculator | FinMetric Pro</title>
+  <!-- NOTE: No styles here — your site's CSS will apply using same class names/IDs -->
+</head>
+<body>
+<div id="nav-include"></div>
+<script src="common.js"></script>
+
+<div class="container">
+  <h1>How Much Corpus Do I Need for Retirement?</h1>
+
+  <div class="calculator-container">
+
+    <div class="section">
+      <label>First Year Monthly Expense (₹)</label>
+      <input type="number" id="iniExpense" placeholder="e.g. 60,000" required>
+
+      <label>Expected Inflation % per year</label>
+      <input type="number" id="inflation" step="0.1" value="6" placeholder="e.g. 6">
+
+      <label>Expected Annual Return on Investments %</label>
+      <input type="number" id="yield" step="0.1" value="8" placeholder="e.g. 8">
+    </div>
+
+    <div class="section">
+      <label>How long should the corpus last?</label>
+      <div class="inline-btns">
+        <button type="button" onclick="showSection('ageSection'); hideSection('tenureSection')">Use Age</button>
+        <button type="button" onclick="showSection('tenureSection'); hideSection('ageSection')">Use Years</button>
+      </div>
+    </div>
+
+    <div id="ageSection" class="section hidden">
+      <label>Current Age</label>
+      <input type="number" id="currentAge" min="20" max="100" placeholder="e.g. 35">
+      <label>Expected Lifespan (or till age)</label>
+      <input type="number" id="lifespan" min="60" max="120" placeholder="e.g. 90">
+    </div>
+
+    <div id="tenureSection" class="section hidden">
+      <label>Number of Years to Plan For</label>
+      <input type="number" id="tenure" step="0.1" placeholder="e.g. 35">
+    </div>
+
+    <div class="section">
+      <label>Do you expect regular monthly income (pension, rent, etc.)?</label>
+      <div class="inline-btns">
+        <button type="button" onclick="showSection('monthlySection')">Yes</button>
+        <button type="button" onclick="hideSection('monthlySection')">No</button>
+      </div>
+    </div>
+    <div id="monthlySection" class="section hidden">
+      <label>Monthly Income (₹)</label>
+      <input type="number" id="monthlyIncome" placeholder="e.g. 25,000">
+      <label>Does it increase annually? (Yes/No)</label>
+      <input type="text" id="monthlyIncOpt" maxlength="3" placeholder="Yes">
+      <div id="monthlyIncRate" class="hidden">
+        <label>Annual Increase %</label>
+        <input type="number" id="monthlyIncPercent" step="0.1" placeholder="e.g. 5">
+      </div>
+    </div>
+
+    <div class="section">
+      <label>Do you expect regular yearly income (dividend, annuity)?</label>
+      <div class="inline-btns">
+        <button type="button" onclick="showSection('yearlySection')">Yes</button>
+        <button type="button" onclick="hideSection('yearlySection')">No</button>
+      </div>
+    </div>
+    <div id="yearlySection" class="section hidden">
+      <label>Yearly Income (₹)</label>
+      <input type="number" id="yearlyIncome" placeholder="e.g. 3,00,000">
+      <label>Does it increase annually? (Yes/No)</label>
+      <input type="text" id="yearlyIncOpt" maxlength="3" placeholder="Yes">
+      <div id="yearlyIncRate" class="hidden">
+        <label>Annual Increase %</label>
+        <input type="number" id="yearlyIncPercent" step="0.1" placeholder="e.g. 5">
+      </div>
+    </div>
+
+    <div class="section">
+      <label>Any big future expenses (house, marriage, medical)? (Max 5)</label>
+      <div class="inline-btns">
+        <button type="button" onclick="enableWithdrawals=true; addWithdrawal()">Yes</button>
+        <button type="button" onclick="enableWithdrawals=false; clearWithdrawals()">No</button>
+      </div>
+    </div>
+    <div id="withdrawalsList"></div>
+    <button id="addWithdrawalBtn" onclick="addWithdrawal()" class="hidden">+ Add Another Big Expense</button>
+
+    <div class="section">
+      <label>Any expected irregular inflows (inheritance, property sale)? (Max 10)</label>
+      <div class="inline-btns">
+        <button type="button" onclick="enableIrregular=true; addIrregular()">Yes</button>
+        <button type="button" onclick="enableIrregular=false; clearIrregular()">No</button>
+      </div>
+    </div>
+    <div id="irregularList"></div>
+    <button id="addIrregularBtn" onclick="addIrregular()">+ Add Another Inflow</button>
+
+    <div class="section">
+      <label>Expected effective tax on withdrawals (%) — approximate</label>
+      <input type="number" id="taxOnWithdrawal" step="0.1" value="0" placeholder="e.g. 12.5">
+      <div class="muted">Use this to approximate LTCG or slab tax on your withdrawal. Enter e.g. 12.5 or 20.</div>
+    </div>
+
+    <div class="section calculate-btn-section">
+      <button onclick="calculateRequiredCorpus()">
+        Calculate Required Corpus
+      </button>
+    </div>
+
+    <div id="result" class="result hidden"></div>
+
+    <!-- SIMPLE YEAR-BY-YEAR TABLE -->
+    <div id="yearTableWrap" class="hidden">
+      <h3>Year-by-year Cashflow (nominal)</h3>
+      <div id="yearTable"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ========================
+   Simple ES5-style JS
+   ======================== */
+
+/* arrays and state (simple, like your original) */
+var tenure = 0;
+var withdrawals = [];        // amounts
+var withdrawalYears = [];   // corresponding years
+var irregulars = [];        // amounts
+var irregularYears = [];    // corresponding years
+var enableWithdrawals = false;
+var enableIrregular = false;
+
+/* helper: show/hide */
+function showSection(id) { document.getElementById(id).classList.remove('hidden'); }
+function hideSection(id) { document.getElementById(id).classList.add('hidden'); }
+
+/* toggle increase rate inputs for monthly/yearly */
+var monthlyIncOpt = document.getElementById('monthlyIncOpt');
+if (monthlyIncOpt) {
+  monthlyIncOpt.addEventListener('input', function () {
+    var show = (monthlyIncOpt.value && monthlyIncOpt.value.toLowerCase().indexOf('y') !== -1);
+    document.getElementById('monthlyIncRate').classList.toggle('hidden', !show);
+  });
+}
+var yearlyIncOpt = document.getElementById('yearlyIncOpt');
+if (yearlyIncOpt) {
+  yearlyIncOpt.addEventListener('input', function () {
+    var show = (yearlyIncOpt.value && yearlyIncOpt.value.toLowerCase().indexOf('y') !== -1);
+    document.getElementById('yearlyIncRate').classList.toggle('hidden', !show);
+  });
+}
+
+/* add/remove big withdrawals (keeps arrays like original) */
+function addWithdrawal() {
+  // allow up to 5
+  var i = withdrawals.length;
+  if (i >= 5) {
+    alert("Max 5 big expenses");
+    return;
+  }
+
+  // create DOM block (simple innerHTML concatenation)
+  var div = document.createElement('div');
+  div.className = 'list-item';
+  div.innerHTML =
+    '<label>Expense ' + (i+1) + ': Amount (₹)</label>' +
+    '<input type="number" id="wdAmt' + i + '" placeholder="e.g. 20,00,000">' +
+    '<label>In which year from now?</label>' +
+    '<input type="number" step="0.1" id="wdYear' + i + '" placeholder="e.g. 10">' +
+    '<button type="button" id="rmWd' + i + '">Remove</button>';
+
+  document.getElementById('withdrawalsList').appendChild(div);
+
+  // push placeholders into arrays
+  withdrawals.push(0);
+  withdrawalYears.push(999);
+
+  // show add button if still room
+  document.getElementById('addWithdrawalBtn').classList.remove('hidden');
+  if (withdrawals.length >= 5) {
+    document.getElementById('addWithdrawalBtn').classList.add('hidden');
+  }
+
+  // remove handler
+  (function(index){
+    var btn = document.getElementById('rmWd' + index);
+    btn.addEventListener('click', function(){
+      // remove DOM item
+      var parent = btn.parentNode;
+      parent.parentNode.removeChild(parent);
+      // remove from arrays by shifting elements to keep ids consistent
+      removeWithdrawalAt(index);
+    });
+  })(i);
+}
+
+/* helper to remove withdrawal at index and shift subsequent inputs ids/values */
+function removeWithdrawalAt(idx) {
+  // remove element and shift arrays
+  withdrawals.splice(idx, 1);
+  withdrawalYears.splice(idx, 1);
+
+  // Rebuild the withdrawalsList DOM to keep ids consistent (simple approach)
+  var container = document.getElementById('withdrawalsList');
+  container.innerHTML = '';
+  var oldLen = withdrawals.length;
+  // temporarily store values then rebuild
+  var tmpAmt = [];
+  var tmpYear = [];
+  for (var j=0; j<oldLen+1; j++) {
+    // read old inputs if any (they might have been removed); use safe parsing
+    var aEl = document.getElementById('wdAmt' + j);
+    var yEl = document.getElementById('wdYear' + j);
+    tmpAmt.push(aEl ? (parseFloat(aEl.value) || 0) : 0);
+    tmpYear.push(yEl ? (parseFloat(yEl.value) || 999) : 999);
+  }
+  // reset arrays
+  withdrawals = [];
+  withdrawalYears = [];
+  for (var k=0; k<tmpAmt.length-1; k++) {
+    withdrawals.push(tmpAmt[k]);
+    withdrawalYears.push(tmpYear[k]);
+    // recreate DOM row
+    var div = document.createElement('div');
+    div.className = 'list-item';
+    div.innerHTML =
+      '<label>Expense ' + (k+1) + ': Amount (₹)</label>' +
+      '<input type="number" id="wdAmt' + k + '" value="' + tmpAmt[k] + '">' +
+      '<label>In which year from now?</label>' +
+      '<input type="number" step="0.1" id="wdYear' + k + '" value="' + tmpYear[k] + '">' +
+      '<button type="button" id="rmWd' + k + '">Remove</button>';
+    container.appendChild(div);
+    (function(index){
+      var btn = document.getElementById('rmWd' + index);
+      btn.addEventListener('click', function(){
+        var parent = btn.parentNode;
+        parent.parentNode.removeChild(parent);
+        removeWithdrawalAt(index);
+      });
+    })(k);
+  }
+
+  if (withdrawals.length < 1) {
+    document.getElementById('addWithdrawalBtn').classList.add('hidden');
+  } else {
+    document.getElementById('addWithdrawalBtn').classList.remove('hidden');
+  }
+}
+
+/* clear withdrawals */
+function clearWithdrawals() {
+  withdrawals = [];
+  withdrawalYears = [];
+  document.getElementById('withdrawalsList').innerHTML = '';
+  document.getElementById('addWithdrawalBtn').classList.add('hidden');
+}
+
+/* add irregular inflows (similar style) */
+function addIrregular() {
+  var i = irregulars.length;
+  if (i >= 10) {
+    alert("Max 10 inflows");
+    return;
+  }
+  var div = document.createElement('div');
+  div.className = 'list-item';
+  div.innerHTML =
+    '<label>Inflow ' + (i+1) + ': Amount (₹)</label>' +
+    '<input type="number" id="irrAmt' + i + '" placeholder="e.g. 50,00,000">' +
+    '<label>In which year?</label>' +
+    '<input type="number" step="0.1" id="irrYear' + i + '" placeholder="e.g. 15">' +
+    '<button type="button" id="rmIrr' + i + '">Remove</button>';
+
+  document.getElementById('irregularList').appendChild(div);
+
+  irregulars.push(0);
+  irregularYears.push(999);
+
+  // remove handler
+  (function(index){
+    var btn = document.getElementById('rmIrr' + index);
+    btn.addEventListener('click', function(){
+      var parent = btn.parentNode;
+      parent.parentNode.removeChild(parent);
+      removeIrregularAt(index);
+    });
+  })(i);
+}
+
+/* remove irregular and rebuild */
+function removeIrregularAt(idx) {
+  irregulars.splice(idx, 1);
+  irregularYears.splice(idx, 1);
+
+  var container = document.getElementById('irregularList');
+  container.innerHTML = '';
+  var tmpAmt = [];
+  var tmpYear = [];
+  for (var j=0; j<irregulars.length+1; j++) {
+    var aEl = document.getElementById('irrAmt' + j);
+    var yEl = document.getElementById('irrYear' + j);
+    tmpAmt.push(aEl ? (parseFloat(aEl.value) || 0) : 0);
+    tmpYear.push(yEl ? (parseFloat(yEl.value) || 999) : 999);
+  }
+  irregulars = [];
+  irregularYears = [];
+  for (var k=0; k<tmpAmt.length-1; k++) {
+    irregulars.push(tmpAmt[k]);
+    irregularYears.push(tmpYear[k]);
+    var div = document.createElement('div');
+    div.className = 'list-item';
+    div.innerHTML =
+      '<label>Inflow ' + (k+1) + ': Amount (₹)</label>' +
+      '<input type="number" id="irrAmt' + k + '" value="' + tmpAmt[k] + '">' +
+      '<label>In which year?</label>' +
+      '<input type="number" step="0.1" id="irrYear' + k + '" value="' + tmpYear[k] + '">' +
+      '<button type="button" id="rmIrr' + k + '">Remove</button>';
+    container.appendChild(div);
+    (function(index){
+      var btn = document.getElementById('rmIrr' + index);
+      btn.addEventListener('click', function(){
+        var parent = btn.parentNode;
+        parent.parentNode.removeChild(parent);
+        removeIrregularAt(index);
+      });
+    })(k);
+  }
+
+  if (irregulars.length < 1) {
+    document.getElementById('addIrregularBtn').classList.add('hidden');
+  } else {
+    document.getElementById('addIrregularBtn').classList.remove('hidden');
+  }
+}
+
+/* clear irregulars */
+function clearIrregular() {
+  irregulars = [];
+  irregularYears = [];
+  document.getElementById('irregularList').innerHTML = '';
+  document.getElementById('addIrregularBtn').classList.add('hidden');
+}
+
+/* MAIN CALCULATION (keeps your original logic + tax) */
+function calculateRequiredCorpus() {
+  var iniExpense = parseFloat(document.getElementById('iniExpense').value) || 0;
+  if (iniExpense <= 0) return alert("Please enter monthly expense");
+
+  var inflation = (parseFloat(document.getElementById('inflation').value) || 0) / 100;
+  var yieldRate = (parseFloat(document.getElementById('yield').value) || 0) / 100;
+
+  // tenure
+  if (!document.getElementById('tenureSection').classList.contains('hidden')) {
+    tenure = parseFloat(document.getElementById('tenure').value) || 30;
+  } else {
+    var current = parseFloat(document.getElementById('currentAge').value) || 35;
+    var end = parseFloat(document.getElementById('lifespan').value) || 90;
+    tenure = end - current;
+  }
+  if (tenure <= 0) tenure = 30;
+
+  // monthly/yearly incomes & increases
+  var monthlyIncome = parseFloat(document.getElementById('monthlyIncome').value) || 0;
+  var monthlyInc = (document.getElementById('monthlyIncOpt').value && document.getElementById('monthlyIncOpt').value.toLowerCase().indexOf('y') !== -1) ?
+    (parseFloat(document.getElementById('monthlyIncPercent').value) || 0) / 100 : 0;
+
+  var yearlyIncome = parseFloat(document.getElementById('yearlyIncome').value) || 0;
+  var yearlyInc = (document.getElementById('yearlyIncOpt').value && document.getElementById('yearlyIncOpt').value.toLowerCase().indexOf('y') !== -1) ?
+    (parseFloat(document.getElementById('yearlyIncPercent').value) || 0) / 100 : 0;
+
+  // read withdrawals & irregulars from the DOM (simple fixed loops like original)
+  for (var i = 0; i < 5; i++) {
+    var wy = document.getElementById('wdYear' + i);
+    var wa = document.getElementById('wdAmt' + i);
+    withdrawalYears[i] = (wy && wy.value) ? parseFloat(wy.value) : 999;
+    withdrawals[i] = (wa && wa.value) ? parseFloat(wa.value) : 0;
+  }
+  for (var j = 0; j < 10; j++) {
+    var iy = document.getElementById('irrYear' + j);
+    var ia = document.getElementById('irrAmt' + j);
+    irregularYears[j] = (iy && iy.value) ? parseFloat(iy.value) : 999;
+    irregulars[j] = (ia && ia.value) ? parseFloat(ia.value) : 0;
+  }
+
+  // tax on withdrawals (user input as percentage)
+  var taxOnWithdrawalPct = parseFloat(document.getElementById('taxOnWithdrawal').value) || 0;
+  var taxOnWithdrawal = Math.max(0, Math.min(99.9, taxOnWithdrawalPct)) / 100; // fraction
+
+  var requiredCorpus = 0;
+  var currentExpense = iniExpense * 12; // annualize first year expense
+  var currentMonthlyInc = monthlyIncome * 12;
+  var currentYearlyInc = yearlyIncome;
+  var year = 1;
+
+  // Prepare simple year-by-year rows to show later
+  var rows = []; // each row: [year, expense, mInc, yInc, wd, inflow, net, grossNeeded, pv]
+
+  // loop years
+  while (year <= Math.ceil(tenure) + 0) {
+    var netCashFlow = currentExpense - currentMonthlyInc - currentYearlyInc;
+
+    // withdrawals that fall this year
+    var wdThisYear = 0;
+    for (var w = 0; w < withdrawals.length; w++) {
+      if (Math.abs((withdrawalYears[w] || 999) - year) < 0.1) wdThisYear += withdrawals[w] || 0;
+    }
+
+    // irregular inflows this year
+    var inflowThisYear = 0;
+    for (var r = 0; r < irregulars.length; r++) {
+      if (Math.abs((irregularYears[r] || 999) - year) < 0.1) inflowThisYear += irregulars[r] || 0;
+    }
+
+    netCashFlow += wdThisYear - inflowThisYear;
+
+    // If netCashFlow > 0 and user specified tax, we gross up to account for tax:
+    // grossNeeded = netCashFlow / (1 - tax) ; simple approximation
+    var grossNeeded = netCashFlow;
+    if (netCashFlow > 0 && taxOnWithdrawal > 0 && taxOnWithdrawal < 0.98) {
+      grossNeeded = netCashFlow / (1 - taxOnWithdrawal);
+    } else if (taxOnWithdrawal >= 0.98 && netCashFlow > 0) {
+      // extremely high tax -> use a large multiplier to avoid divide by near-zero
+      grossNeeded = netCashFlow * 100;
+    }
+
+    // discount to present value using nominal yield
+    var pv = grossNeeded / Math.pow(1 + yieldRate, year - 1);
+    requiredCorpus += pv;
+
+    // store row
+    rows.push([year, currentExpense, currentMonthlyInc, currentYearlyInc, wdThisYear, inflowThisYear, netCashFlow, grossNeeded, pv]);
+
+    // inflate for next year
+    currentExpense = currentExpense * (1 + inflation);
+    currentMonthlyInc = currentMonthlyInc * (1 + monthlyInc);
+    currentYearlyInc = currentYearlyInc * (1 + yearlyInc);
+
+    year++;
+  }
+
+  requiredCorpus = Math.max(0, Math.round(requiredCorpus));
+
+  // show result (simple innerHTML)
+  var resultDiv = document.getElementById('result');
+  resultDiv.classList.remove('hidden');
+  resultDiv.innerHTML = ''
+    + '<div class="big-result">₹' + requiredCorpus.toLocaleString('en-IN') + '</div>'
+    + '<p><strong>Required Corpus Today</strong> to sustain your lifestyle for <strong>' + (tenure.toFixed ? tenure.toFixed(1) : tenure) + ' years</strong></p>'
+    + '<p class="result-details">'
+    + 'First year expense: ₹' + (iniExpense*12).toLocaleString('en-IN') + '/year<br>'
+    + 'Expected return: ' + (yieldRate*100).toFixed(1) + '% | Inflation: ' + (inflation*100).toFixed(1) + '%<br>'
+    + 'Effective tax on withdrawals used: ' + (taxOnWithdrawalPct).toFixed(2) + '%'
+    + '</p>';
+
+  // build simple year-by-year table (plain HTML)
+  var tableHtml = '<table><thead><tr>'
+    + '<th>Y</th><th>Expense</th><th>MonthlyInc</th><th>YearlyInc</th><th>Withdrawals</th><th>Inflows</th>'
+    + '<th>NetNeed</th><th>GrossNeed</th><th>PV</th></tr></thead><tbody>';
+
+  for (var t = 0; t < rows.length; t++) {
+    var r = rows[t];
+    tableHtml += '<tr>'
+      + '<td style="text-align:center">' + r[0] + '</td>'
+      + '<td style="text-align:right">₹' + Math.round(r[1]).toLocaleString('en-IN') + '</td>'
+      + '<td style="text-align:right">₹' + Math.round(r[2]).toLocaleString('en-IN') + '</td>'
+      + '<td style="text-align:right">₹' + Math.round(r[3]).toLocaleString('en-IN') + '</td>'
+      + '<td style="text-align:right">₹' + Math.round(r[4]).toLocaleString('en-IN') + '</td>'
+      + '<td style="text-align:right">₹' + Math.round(r[5]).toLocaleString('en-IN') + '</td>'
+      + '<td style="text-align:right">₹' + Math.round(r[6]).toLocaleString('en-IN') + '</td>'
+      + '<td style="text-align:right">₹' + Math.round(r[7]).toLocaleString('en-IN') + '</td>'
+      + '<td style="text-align:right">₹' + Math.round(r[8]).toLocaleString('en-IN') + '</td>'
+      + '</tr>';
+  }
+  tableHtml += '</tbody></table>';
+
+  // insert table and show wrapper
+  document.getElementById('yearTable').innerHTML = tableHtml;
+  document.getElementById('yearTableWrap').classList.remove('hidden');
+}
+
+/* mobile menu (kept like original) */
+var hamburger = document.querySelector('.hamburger');
+if (hamburger) {
+  hamburger.addEventListener('click', function(){
+    var links = document.querySelector('.nav-links');
+    if (links) links.classList.toggle('active');
+  });
+}
+
+</script>
+
+<div id="footer-include"></div>
+</body>
+</html>
