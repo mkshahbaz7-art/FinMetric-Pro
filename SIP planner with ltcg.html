@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retirement SIP Planner | FinMetric Pro</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="nav-include"></div>
+<script src="common.js"></script>
+
+<div class="container">
+  <h1>How Much SIP Do I Need to Retire?</h1>
+  <div class="calculator-container">
+    <div class="section">
+      <h2>Ages & Tenure</h2>
+      <label>Current Age</label>
+      <input type="number" id="currentAge" value="30" min="18" max="70">
+      <label>Retirement Age</label>
+      <input type="number" id="retireAge" value="58" min="30" max="100">
+      <label>Life Expectancy (or till age)</label>
+      <input type="number" id="lifeAge" value="90" min="60" max="120">
+    </div>
+    <div class="section">
+      <h2>Retirement Expenses</h2>
+      <label>Monthly Expense Input Method</label>
+      <div class="inline-btns">
+        <button type="button" onclick="document.querySelector('input[value=current]').checked=true; showSection('currentExpenseBox'); hideSection('futureExpenseBox');">Current Expense</button>
+        <button type="button" onclick="document.querySelector('input[value=future]').checked=true; hideSection('currentExpenseBox'); showSection('futureExpenseBox');">Expense at Retirement</button>
+      </div>
+      <input type="radio" name="expenseType" value="current" checked hidden>
+      <input type="radio" name="expenseType" value="future" hidden>
+    </div>
+    <div id="currentExpenseBox" class="section">
+      <label>Current Monthly Expense (₹)</label>
+      <input type="number" id="currentMonthlyExpense" value="60000">
+    </div>
+    <div id="futureExpenseBox" class="section hidden">
+      <label>Monthly Expense in First Year of Retirement (₹)</label>
+      <input type="number" id="futureMonthlyExpense" placeholder="e.g. 100000">
+    </div>
+    <div class="section">
+      <h2>Rates</h2>
+      <label>Expected Annual Return on Investments during Accumulation (%)</label>
+      <input type="number" id="accumYield" step="0.1" value="12">
+      <label>Expected Annual Return during Retirement (%)</label>
+      <input type="number" id="retireYield" step="0.1" value="10">
+      <label>Expected Inflation (% per year)</label>
+      <input type="number" id="inflation" step="0.1" value="6">
+      <label>Annual SIP Step-Up (%)</label>
+      <input type="number" id="stepUp" step="0.1" value="10">
+
+      <!-- NEW: tax input -->
+      <label>Effective tax on gains withdrawn (%)</label>
+      <input type="number" id="taxOnWithdrawal" step="0.1" value="12.5" placeholder="e.g. 12.5">
+      <div class="muted">Use this to model LTCG/slab on the taxable portion of withdrawals in retirement.</div>
+    </div>
+    <div class="section">
+      <h2>Existing Investments</h2>
+      <label>Current Value of FD/Debt Assets (₹)</label>
+      <input type="number" id="fdValue" value="0">
+      <label>Expected Return on FD/Debt (%)</label>
+      <input type="number" id="fdRate" step="0.1" value="7">
+      <label>Current Value of MF/Equity Assets (₹)</label>
+      <input type="number" id="mfValue" value="0">
+      <label>Expected Return on MF/Equity (%)</label>
+      <input type="number" id="mfRate" step="0.1" value="12">
+    </div>
+    <!-- Regular Income, Withdrawals, Inflows — unchanged UI -->
+    <div class="section">
+      <h2>Regular Retirement Income</h2>
+      <label>Any regular monthly income? (e.g. pension)</label>
+      <div class="inline-btns">
+        <button type="button" onclick="showSection('monthlySection')">Yes</button>
+        <button type="button" onclick="hideSection('monthlySection'); document.getElementById('monthlyIncome').value=0">No</button>
+      </div>
+    </div>
+    <div id="monthlySection" class="section hidden">
+      <label>Monthly Income (₹)</label>
+      <input type="number" id="monthlyIncome" value="0">
+      <label>Will it increase annually? (Y/N)</label>
+      <input type="text" id="monthlyIncOpt" maxlength="1">
+      <div id="monthlyIncRate" class="hidden">
+        <label>Annual Increase (%)</label>
+        <input type="number" id="monthlyIncPercent" step="0.1" value="5">
+      </div>
+    </div>
+    <div class="section">
+      <label>Any regular yearly income? (e.g. rental)</label>
+      <div class="inline-btns">
+        <button type="button" onclick="showSection('yearlySection')">Yes</button>
+        <button type="button" onclick="hideSection('yearlySection'); document.getElementById('yearlyIncome').value=0">No</button>
+      </div>
+    </div>
+    <div id="yearlySection" class="section hidden">
+      <label>Yearly Income (₹)</label>
+      <input type="number" id="yearlyIncome" value="0">
+      <label>Will it increase annually? (Y/N)</label>
+      <input type="text" id="yearlyIncOpt" maxlength="1">
+      <div id="yearlyIncRate" class="hidden">
+        <label>Annual Increase (%)</label>
+        <input type="number" id="yearlyIncPercent" step="0.1" value="5">
+      </div>
+    </div>
+    <!-- One-time flows — same as before -->
+    <div class="section">
+      <h2>Big One-Time Expenses During Retirement? (Max 5)</h2>
+      <div class="inline-btns">
+        <button type="button" onclick="enableWithdrawals=true; addWithdrawal();">Yes</button>
+        <button type="button" onclick="enableWithdrawals=false; document.getElementById('withdrawalsList').innerHTML=''; withdrawals=[];">No</button>
+      </div>
+    </div>
+    <div id="withdrawalsList"></div>
+    <button id="addWithdrawalBtn" class="hidden" onclick="addWithdrawal()">+ Add Another Expense</button>
+    <div class="section">
+      <h2>Expected One-Time Inflows? (Max 10)</h2>
+      <div class="inline-btns">
+        <button type="button" onclick="enableIrregular=true; addIrregular();">Yes</button>
+        <button type="button" onclick="enableIrregular=false; document.getElementById('irregularList').innerHTML=''; irregulars=[];">No</button>
+      </div>
+    </div>
+    <div id="irregularList"></div>
+    <button id="addIrregularBtn" class="hidden" onclick="addIrregular()">+ Add Another Inflow</button>
+    <div class="section calculate-btn-section">
+      <button onclick="calculate()">Calculate My Monthly SIP</button>
+    </div>
+    <div id="result" class="result hidden">
+      <h2>Required Starting SIP</h2>
+      <div class="big" id="sipAmount">₹0</div>
+      <p><strong>Start this SIP every month from today</strong></p>
+      <div id="details"></div>
+      <div id="yearTableWrap" class="hidden">
+        <h3>Year-by-year (Retirement) — principal/gains/tax</h3>
+        <div id="yearTable"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Keep UI logic unchanged */
+let withdrawals = [], irregulars = [];
+let enableWithdrawals = false, enableIrregular = false;
+function showSection(id) { var el = document.getElementById(id); if (el) el.classList.remove('hidden'); }
+function hideSection(id) { var el = document.getElementById(id); if (el) el.classList.add('hidden'); }
+document.querySelectorAll('input[name="expenseType"]').forEach(r => r.addEventListener('change', () => {
+  (r.value === "current") ? (showSection('currentExpenseBox'), hideSection('futureExpenseBox'))
+                          : (hideSection('currentExpenseBox'), showSection('futureExpenseBox'));
+}));
+document.getElementById("monthlyIncOpt")?.addEventListener("input", e => 
+  document.getElementById("monthlyIncRate").classList.toggle("hidden", !/y/i.test(e.target.value)));
+document.getElementById("yearlyIncOpt")?.addEventListener("input", e => 
+  document.getElementById("yearlyIncRate").classList.toggle("hidden", !/y/i.test(e.target.value)));
+function addWithdrawal() { 
+  if (withdrawals.length >= 5) return alert("Max 5");
+  const i = withdrawals.length;
+  const div = document.createElement("div"); div.className = "list-item";
+  div.innerHTML = `<label>Expense ${i+1} (₹)</label><input type="number" id="wdAmt${i}" value="0">
+                   <label>Year from retirement</label><input type="number" step="0.1" id="wdYear${i}" value="1">`;
+  document.getElementById("withdrawalsList").appendChild(div);
+  withdrawals.push(0);
+  showSection("addWithdrawalBtn");
+  if (withdrawals.length >= 5) hideSection("addWithdrawalBtn");
+}
+function addIrregular() { 
+  if (irregulars.length >= 10) return alert("Max 10");
+  const i = irregulars.length;
+  const div = document.createElement("div"); div.className = "list-item";
+  div.innerHTML = `<label>Inflow ${i+1} (₹)</label><input type="number" id="irrAmt${i}" value="0">
+                   <label>Year from retirement</label><input type="number" step="0.1" id="irrYear${i}" value="1">`;
+  document.getElementById("irregularList").appendChild(div);
+  irregulars.push(0);
+  showSection("addIrregularBtn");
+  if (irregulars.length >= 10) hideSection("addIrregularBtn");
+}
+
+/* Utility */
+function safeNum(v){ v = Number(v); return isFinite(v) ? v : 0; }
+
+/* ---------- New: survival simulation used inside binary search ---------- */
+function survives(startCorpus, netNeeds, retireYield, taxOnWithdrawal) {
+  // principalLeft = startCorpus, gainsLeft = 0
+  var principalLeft = startCorpus;
+  var gainsLeft = 0;
+
+  for (var y = 0; y < netNeeds.length; y++) {
+    // corpus earns interest at retireYield; interest is added to gains
+    var totalBefore = principalLeft + gainsLeft;
+    var interest = totalBefore * retireYield;
+    gainsLeft += interest;
+
+    var need = netNeeds[y];
+
+    if (need <= 0) {
+      continue; // no withdrawal needed
+    }
+
+    // withdraw principal first
+    if (need <= principalLeft + 1e-9) {
+      principalLeft -= need;
+      continue;
+    }
+
+    // principal insufficient -> taxable part comes from gains
+    var taxablePortion = need - principalLeft;
+    principalLeft = 0;
+
+    // If gainsLeft < taxablePortion -> fail
+    if (gainsLeft + 1e-9 < taxablePortion) {
+      return false;
+    }
+
+    // tax on taxablePortion
+    var tax = taxablePortion * taxOnWithdrawal;
+    var grossFromGains = taxablePortion + tax;
+
+    // need to have enough gains to cover both sold gains and tax
+    if (gainsLeft + 1e-9 < grossFromGains) {
+      return false;
+    }
+
+    gainsLeft -= grossFromGains;
+    // continue to next year
+  }
+
+  return true; // survived all years
+}
+
+/* ---------- main calculate function (integrated binary search for required corpus) ---------- */
+function calculate() {
+  // Inputs
+  const currentAge = safeNum(document.getElementById("currentAge").value);
+  const retireAge = safeNum(document.getElementById("retireAge").value);
+  const lifeAge = safeNum(document.getElementById("lifeAge").value);
+  const sipTenure = retireAge - currentAge;
+  const tenure = lifeAge - retireAge;
+  if (sipTenure <= 0 || tenure <= 0) return alert("Invalid ages");
+  const accumYield = safeNum(document.getElementById("accumYield").value) / 100;
+  const retireYield = safeNum(document.getElementById("retireYield").value) / 100;
+  const inflation = safeNum(document.getElementById("inflation").value) / 100;
+  const stepUp = safeNum(document.getElementById("stepUp").value) / 100;
+  const fdValue = safeNum(document.getElementById("fdValue").value);
+  const fdRate = safeNum(document.getElementById("fdRate").value) / 100;
+  const mfValue = safeNum(document.getElementById("mfValue").value);
+  const mfRate = safeNum(document.getElementById("mfRate").value) / 100;
+  // Expense at retirement
+  let iniExpense;
+  if (document.querySelector('input[name="expenseType"]:checked').value === "current") {
+    const cur = safeNum(document.getElementById("currentMonthlyExpense").value);
+    iniExpense = cur * Math.pow(1 + inflation, sipTenure);
+  } else {
+    iniExpense = safeNum(document.getElementById("futureMonthlyExpense").value);
+  }
+  // Regular income
+  const monthlyPay = safeNum(document.getElementById("monthlyIncome")?.value);
+  const yearlyPay = safeNum(document.getElementById("yearlyIncome")?.value);
+  const monthlyPayInc = /y/i.test(document.getElementById("monthlyIncOpt")?.value) ? 
+    safeNum(document.getElementById("monthlyIncPercent").value)/100 : 0;
+  const yearlyPayInc = /y/i.test(document.getElementById("yearlyIncOpt")?.value) ? 
+    safeNum(document.getElementById("yearlyIncPercent").value)/100 : 0;
+  // Irregular flows
+  var withdrawalAmounts = [], withdrawalYears = [];
+  document.querySelectorAll("#withdrawalsList .list-item").forEach(function(_, i) {
+    var amtEl = document.getElementById(`wdAmt${i}`);
+    var yrEl = document.getElementById(`wdYear${i}`);
+    var amt = safeNum(amtEl ? amtEl.value : 0);
+    var yr = safeNum(yrEl ? yrEl.value : 999);
+    if (amt > 0) { withdrawalAmounts.push(amt); withdrawalYears.push(yr); }
+  });
+  var inflowAmounts = [], inflowYears = [];
+  document.querySelectorAll("#irregularList .list-item").forEach(function(_, i) {
+    var amtEl = document.getElementById(`irrAmt${i}`);
+    var yrEl = document.getElementById(`irrYear${i}`);
+    var amt = safeNum(amtEl ? amtEl.value : 0);
+    var yr = safeNum(yrEl ? yrEl.value : 999);
+    if (amt > 0) { inflowAmounts.push(amt); inflowYears.push(yr); }
+  });
+
+  // Build netNeeds array (yearly nominal net = expense - incomes + withdrawals - inflows)
+  var netNeeds = []; // index 0 => year1
+  var currentExpense = iniExpense;
+  var currentMonthlyInc = monthlyPay * 12;
+  var currentYearlyInc = yearlyPay;
+  for (var y = 1; y <= Math.ceil(tenure); y++) {
+    var netCashFlow = currentExpense * 12 - currentMonthlyInc - currentYearlyInc;
+
+    // add big withdrawals (negative cash)
+    for (var w = 0; w < withdrawalAmounts.length; w++) {
+      if (Math.round(withdrawalYears[w]) === y) netCashFlow -= withdrawalAmounts[w];
+    }
+    // add inflows (positive)
+    for (var r = 0; r < inflowAmounts.length; r++) {
+      if (Math.round(inflowYears[r]) === y) netCashFlow += inflowAmounts[r];
+    }
+
+    netNeeds.push(netCashFlow);
+
+    // inflate for next year
+    currentExpense *= (1 + inflation);
+    currentMonthlyInc *= (1 + monthlyPayInc);
+    currentYearlyInc *= (1 + yearlyPayInc);
+  }
+
+  // If all years non-positive => requiredCorpus = 0
+  var allNonPositive = true;
+  for (var i = 0; i < netNeeds.length; i++) if (netNeeds[i] > 0) { allNonPositive = false; break; }
+  if (allNonPositive) {
+    displayResult(0, netNeeds, retireYield, inflation, safeNum(document.getElementById("taxOnWithdrawal").value));
+    return;
+  }
+
+  // Tax rate (decimal)
+  var taxOnWithdrawalPct = safeNum(document.getElementById("taxOnWithdrawal").value) || 0;
+  var taxOnWithdrawal = Math.max(0, Math.min(99.9, taxOnWithdrawalPct)) / 100;
+
+  // Binary search for minimal starting corpus that survives
+  // start low = 0, high = a conservative PV without tax * 4 (safe upper bound)
+  var noTaxPV = 0;
+  for (var t = 0; t < netNeeds.length; t++) {
+    var gross = netNeeds[t] > 0 ? netNeeds[t] : 0;
+    noTaxPV += gross / Math.pow(1 + retireYield, t+1-1); // same as gross / (1+retireYield)^(t)
+  }
+  var low = 0;
+  var high = Math.max(1, noTaxPV * 4);
+  var tries = 0;
+  // Ensure high is sufficient
+  while (!survives(high, netNeeds, retireYield, taxOnWithdrawal) && tries < 80) {
+    high = high * 2;
+    tries++;
+  }
+
+  // Binary search loop (stop when difference < 1 rupee or max iterations)
+  var resultCorpus = high;
+  var iter = 0;
+  while (iter < 80 && (high - low) > 1) {
+    var mid = Math.floor((low + high) / 2);
+    if (survives(mid, netNeeds, retireYield, taxOnWithdrawal)) {
+      resultCorpus = mid;
+      high = mid;
+    } else {
+      low = mid;
+    }
+    iter++;
+  }
+
+  var requiredCorpus = resultCorpus;
+
+  // Existing assets FV (unchanged)
+  var existingFV = 0;
+  if (fdValue > 0) existingFV += fdValue * Math.pow(1 + fdRate, sipTenure);
+  if (mfValue > 0) existingFV += mfValue * Math.pow(1 + mfRate, sipTenure);
+  var netCorpus = requiredCorpus - existingFV;
+  if (netCorpus <= 0) {
+    document.getElementById("sipAmount").innerText = "₹0";
+    document.getElementById("details").innerHTML = `Your existing assets (₹${Math.round(existingFV).toLocaleString("en-IN")}) already cover the required corpus!`;
+    document.getElementById("result").classList.remove("hidden");
+    return;
+  }
+
+  // SIP FV calculation (exactly same as original)
+  const fullYears = Math.floor(sipTenure);
+  const partYear = sipTenure - fullYears;
+  const extraMonths = Math.round(partYear * 12);
+  const r = Math.pow(1 + accumYield, 1/12) - 1;
+  const rn = Math.pow(1 + r, 12);
+  var sip = 1;
+  var unitFV = 0;
+  for (var i = 1; i <= fullYears; i++) {
+    var endYear = sip * (rn - 1) / r * (1 + r);
+    var monthsLeft = (sipTenure - i) * 12;
+    unitFV += endYear * Math.pow(1 + r, monthsLeft);
+    sip *= (1 + stepUp);
+  }
+  if (extraMonths > 0) {
+    var rm = Math.pow(1 + r, extraMonths);
+    var end = sip * (rm - 1) / r * (1 + r);
+    unitFV += end;
+  }
+  var requiredSIP = netCorpus / unitFV;
+
+  // display
+  document.getElementById("sipAmount").innerText = "₹" + Math.round(requiredSIP).toLocaleString("en-IN");
+  document.getElementById("details").innerHTML = `
+    <strong>Required Corpus at Retirement:</strong> ₹${Math.round(requiredCorpus).toLocaleString("en-IN")}<br>
+    <strong>Existing Assets FV:</strong> ₹${Math.round(existingFV).toLocaleString("en-IN")}<br>
+    <strong>Net Corpus Needed:</strong> ₹${Math.round(netCorpus).toLocaleString("en-IN")}<br>
+    <strong>SIP Tenure:</strong> ${sipTenure.toFixed(1)} years
+  `;
+  document.getElementById("result").classList.remove("hidden");
+
+  // Build year-by-year table for transparency (simulate with startCorpus = requiredCorpus)
+  buildYearTable(requiredCorpus, netNeeds, retireYield, taxOnWithdrawal);
+}
+
+/* ---------- Build year-by-year table (simulate withdrawals) ---------- */
+function buildYearTable(startCorpus, netNeeds, retireYield, taxOnWithdrawal) {
+  var principalLeft = startCorpus;
+  var gainsLeft = 0;
+  var rows = [];
+  for (var y = 0; y < netNeeds.length; y++) {
+    var totalBefore = principalLeft + gainsLeft;
+    var interest = totalBefore * retireYield;
+    gainsLeft += interest;
+    var need = netNeeds[y];
+    var wdPrincipal = 0, wdGains = 0, taxPaid = 0, grossWithdrawn = 0;
+    if (need > 0) {
+      if (need <= principalLeft + 1e-9) {
+        wdPrincipal = need;
+        principalLeft -= need;
+        grossWithdrawn = need;
+      } else {
+        wdPrincipal = principalLeft;
+        var taxablePortion = need - principalLeft;
+        principalLeft = 0;
+        if (gainsLeft + 1e-9 < taxablePortion) {
+          // insufficient (shouldn't happen if corpus was computed correctly); mark negative
+          wdGains = gainsLeft;
+          taxPaid = (wdGains * taxOnWithdrawal);
+          grossWithdrawn = wdPrincipal + wdGains + taxPaid;
+          gainsLeft = 0;
+        } else {
+          wdGains = taxablePortion;
+          taxPaid = wdGains * taxOnWithdrawal;
+          grossWithdrawn = wdPrincipal + wdGains + taxPaid;
+          gainsLeft -= (wdGains + taxPaid);
+        }
+      }
+    }
+    rows.push({
+      y: y+1,
+      need: need,
+      wdPrincipal: wdPrincipal,
+      wdGains: wdGains,
+      taxPaid: taxPaid,
+      grossWithdrawn: grossWithdrawn,
+      principalLeft: principalLeft,
+      gainsLeft: gainsLeft
+    });
+  }
+
+  var html = '<table><thead><tr><th>Y</th><th>Need</th><th>From Principal</th><th>From Gains</th><th>Tax Paid</th><th>Gross Withdrawn</th><th>Principal Left</th><th>Gains Left</th></tr></thead><tbody>';
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    html += '<tr>'
+      + '<td style="text-align:center">' + r.y + '</td>'
+      + '<td style="text-align:right">₹' + Math.round(r.need).toLocaleString('en-IN') + '</td>'
+      + '<td style="text-align:right">₹' + Math.round(r.wdPrincipal).toLocaleString('en-IN') + '</td>'
+      + '<td style="text-align:right">₹' + Math.round(r.wdGains).toLocaleString('en-IN') + '</td>'
+      + '<td style="text-align:right">₹' + Math.round(r.taxPaid).toLocaleString('en-IN') + '</td>'
+      + '<td style="text-align:right">₹' + Math.round(r.grossWithdrawn).toLocaleString('en-IN') + '</td>'
+      + '<td style="text-align:right">₹' + Math.round(r.principalLeft).toLocaleString('en-IN') + '</td>'
+      + '<td style="text-align:right">₹' + Math.round(r.gainsLeft).toLocaleString('en-IN') + '</td>'
+      + '</tr>';
+  }
+  html += '</tbody></table>';
+  document.getElementById('yearTable').innerHTML = html;
+  document.getElementById('yearTableWrap').classList.remove('hidden');
+}
+
+/* ---------- mobile menu (unchanged) ---------- */
+var hamburger = document.querySelector('.hamburger');
+if (hamburger) {
+  hamburger.addEventListener('click', function(){
+    var links = document.querySelector('.nav-links');
+    if (links) links.classList.toggle('active');
+  });
+}
+</script>
+
+<div id="footer-include"></div>
+</body>
+</html>
