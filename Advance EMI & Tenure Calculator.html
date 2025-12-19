@@ -158,7 +158,7 @@
             table += `<tr><td>${i}</td><td>₹${interest.toFixed(0)}</td><td>₹${loan.toFixed(0)}</td></tr>`;
 
             if (loan <= 0) {
-                tenure_dur = `<strong>Loan paid off in ${(i/12).toFixed(0)} Years & ${i%12} months! <br>Total interest paid will be ₹${total_interest.toFixed(0)} for EMI ₹${emi.toFixed(0)}.</strong><div style="font-size: 0.7em; color: #777777;"> Please note the interest calculated may vary slightly <br> based on banks, date of EMI payments etc. <br> If the EMI is increasing yearly, EMI displayed here will be last EMI paid</div>`; 
+                tenure_dur = `<strong>Loan paid off in ${Math.floor(i/12)} Years & ${i%12} months! <br>Total interest paid will be ₹${total_interest.toFixed(0)} for EMI ₹${emi.toFixed(0)}.</strong><div style="font-size: 0.7em; color: #777777;"> Please note the interest calculated may vary slightly <br> based on banks, date of EMI payments etc. <br> If the EMI is increasing yearly, EMI displayed here will be last EMI paid</div>`; 
                 break;
             }
         }
@@ -180,6 +180,7 @@
     </script>
 </body>
 </html>
+
 
 
 
