@@ -261,7 +261,6 @@
 
             </div>
         </div>
-
         <script>
             const STD_OLD = 50000;
             const CESS = 0.04;
@@ -360,6 +359,7 @@
                 const mode = document.querySelector('input[name="input_type"]:checked').value;
 
                 let gross = 0;
+                let ageGroup = 59; // Default age group
 
                 if (mode === "taxable") {
                     gross = v("income_taxable");
@@ -421,7 +421,6 @@
 
                     // 80TTA/TTB Limits
                     const si = v("saving_interest_" + t);
-                    let ageGroup=59;
                      
                     if (document.getElementById("senior_for_80ttb_" + t).value === "yes") {
                         deductions += Math.min(si, 50000); // 80TTB (Senior Citizen)
@@ -457,33 +456,26 @@
 
 
                 let tax = 0;
-                if (ageGroup==80){
-
+                if (ageGroup === 80) {
+                    // Super Senior Citizen (Exempt up to 5L)
                     if (taxable > 500000) tax += Math.min(500000, taxable - 500000) * 0.20;
-
                     if (taxable > 1000000) tax += (taxable - 1000000) * 0.30;
-
-                    tax = Math.max(0, tax);
-                }
-                if (ageGroup==60){
-                    
-                    if (taxable > 300000) tax += Math.min(300000, taxable - 300000) * 0.05;
-                    
+                } 
+                else if (ageGroup === 60) {
+                    // Senior Citizen (Exempt up to 3L)
+                    if (taxable > 300000) tax += Math.min(200000, taxable - 300000) * 0.05;
                     if (taxable > 500000) tax += Math.min(500000, taxable - 500000) * 0.20;
-
                     if (taxable > 1000000) tax += (taxable - 1000000) * 0.30;
-
-                    tax = Math.max(0, tax);
-                }
+                } 
                 else {
+                    // Normal Citizen (Exempt up to 2.5L)
                     if (taxable > 250000) tax += Math.min(250000, taxable - 250000) * 0.05;
-
                     if (taxable > 500000) tax += Math.min(500000, taxable - 500000) * 0.20;
-
                     if (taxable > 1000000) tax += (taxable - 1000000) * 0.30;
-
-                    tax = Math.max(0, tax);
                 }
+
+                tax = Math.max(0, tax);
+
                 let rebate = taxable <= 500000 ? Math.min(tax, 12500) : 0;
 
                 let after = tax - rebate;
@@ -491,10 +483,11 @@
                 let total = after + cess;
 
                 document.getElementById("result").innerHTML = `
-                        <h3>Old Regime Tax Result</h3>
-                        <p><strong>Taxable Income:</strong> ₹${taxable.toLocaleString("en-IN")}</p>
-                        <p><strong>Total Tax Payable:</strong> ₹${Math.round(total).toLocaleString("en-IN")}</p>
-                    `;
+                <p>Total Tax : </strong> ₹${taxable.toLocaleString("en-IN")}</p>
+                <p>Base Tax : ${after.toLocaleString("en-IN")}</p>
+                <p>Cess : ${cess.toLocaleString("en-IN")}</p>
+                <p>Total Tax : ${total.toLocaleString("en-IN")}</p>
+                `;
                 document.getElementById("result").classList.remove("hidden");
             }
         </script>
